@@ -1,0 +1,631 @@
+@require: stdjareport-math
+@require: math-sub
+@require: azmath/azmath
+@require: itemize
+@require: diagram
+
+let measureble-sp = ${\paren{\mathrm{\Omega}, \mathfrak{B}}} in
+let measure-sp = ${\paren{\mathrm{\Omega}, \mathfrak{B}, m}} in
+let-math \set-intentional object limit =
+  let rel = math-char MathRel in
+  let-math \semicolon-rel = rel `;` in
+  ${\ \pb{\ #object \semicolon-rel #limit\ }\ } 
+in
+document (|
+  title = {解析学セミナー\: ルベーグ積分超入門};
+  univ = {京都工芸繊維大学 工芸科学部 設計工学域 情報工学課程};
+  number = {B4};
+  author = {estis_jk};
+  date = {2021/06/06};
+  show-toc = true;
+|) '<
+
+  +preface {
+    測度論で確率論を✝完全理解✝したい．
+    ついでに情報理論もやりたいし， 更には最近始まった情報幾何のゼミでも活かしていきたい．
+    ところで君， 学部なんだったっけ？
+  }
+  
+  +chapter{抽象的測度論}<
+    +p{
+      普通の本だと先にボレル集合をとってきて測度を構成して……ってやるけど， 
+      今回の本ではとりあえず測度・可測関数の性質を確認してから構成してという流れでした．
+      それに従って実装をしていきます．
+    }
+
+    +section{可測性，測度空間} <
+      +definition?:({可測空間})?:(`measurable-space`){
+        集合${\mathrm{\Omega}}の部分集合の族${\mathfrak{B}}で，以下をみたすものを\dfn{${\sigma}代数}という．
+        \enumerate{
+          * ${\mathrm{\Omega} \in \mathfrak{B}}
+          * ${A \in \mathfrak{B} \Rightarrow A^\complement \in \mathfrak{B}}
+          * ${\mathfrak{B}}の元の族${\brace{A_i}_{i \in \mathbb{N}}} について，${\bigcup_{i \in \mathbb{N}} A_i \in \mathfrak{B}}
+        }
+        ${\mathrm{\Omega}}とその上の${\sigma}代数${\mathfrak{B}}の組${\paren{\mathrm{\Omega}, \mathfrak{B}}}を\dfn{可測空間}といい，
+        ${\sigma}代数${\mathfrak{B}}の元を\dfn{可測集合}という．
+        (特に， 確率論では可測集合のことを事象という．)
+      }
+      +p{
+        note: 族が${\mathbb{N}}-indexedだけど，有限個の族を考えるときは適切に${\emptyset}を加えることで同じように考えられる．
+      }
+      % 
+      % prob． なんかenumerate環境がおかしい， 斜体になる
+      % ans． theorem環境の引数で文字をイタリックにするやつが渡されてたのでそれがダメだったっぽい
+      % 
+      +theorem{
+        ${#measureble-sp}を可測空間とする．${\mathfrak{B}}の元の族${\brace{A_i}_{i \in \mathbb{N}}}について以下が成り立つ．
+        \enumerate{
+          * ${\emptyset \in \mathfrak{B}}
+          * ${\bigcap_{i \in \mathbb{N}} A_i \in \mathfrak{B}}
+          * ${\limsup_{n \to \infty} A_i, \liminf_{n \to \infty} A_i \in \mathfrak{B}}
+        }
+      }
+      +proof<
+        +enumerate{
+          * def\ref(`def:measurable-space`); (1)，(2)より，${\mathrm{\Omega}^\complement = \emptyset \in \mathfrak{B}}
+          * 
+            \alignat(2)( ${
+                  |A_i \in \mathfrak{B} \paren{i \in \mathbb{N}} |\Rightarrow A_i^\complement \in \mathfrak{B} \paren{i \in \mathbb{N}}                                                        | \text!{（∵def\ref(`def:measurable-space`); (2)）}  | 
+                  |                                              |\Rightarrow \bigcup_{i \in \mathbb{N}} A_i^\complement \in \mathfrak{B}                                                      | \text!{（∵def\ref(`def:measurable-space`); (3)）}  | 
+                  |                                              |\Rightarrow \paren{\bigcup_{i \in \mathbb{N}} A_i^\complement}^\complement = \bigcap_{i \in \mathbb{N}} A_i \in \mathfrak{B} | \text!{（∵ド・モルガンの定理）}                    | 
+                  |}
+              );
+          
+            より示せた．
+          * ${\limsup_{n \to \infty} A_i = \bigcap_{i=1}^{\infty} \bigcup_{j = i}^{\infty} A_j}, 
+            ${\liminf_{n \to \infty} A_i = \bigcup_{i=1}^{\infty} \bigcap_{j = i}^{\infty} A_j}なので，
+            (2)とdef\ref(`def:measurable-space`); (3)より従う．
+        }
+      >
+      +definition{
+        ${+\infty}は${\forall r \in \mathbb{R}, r < +\infty}を，
+        ${-\infty}は${\forall r \in \mathbb{R}, r > -\infty}を満たすものとして定める．
+        また，${\mathbb{R}^{+} \coloneq \sqbracket{0, +\infty}}，
+        ${\mathbb{R}^{*} \coloneq \sqbracket{-\infty, +\infty}}として定める．
+      }
+
+      +definition?:({測度})?:(`measure`){
+        可測空間${#measureble-sp}上の\dfn{測度}${m \colon-rel \mathfrak{B} \to \mathbb{R}^{+}}は以下を満たすもの．
+        \enumerate{
+          * ${A \in \mathfrak{B}}について，${\app{m}{A} \geq 0}．特に，${\app{m}{\emptyset}= 0}
+          * ${\mathfrak{B}}の元の族${\brace{A_i}_{i \in \mathbb{N}}} について，
+            どの${i, j \in \mathbb{N} \paren{i \neq j}}で互いに素（ ${A_i \cap A_j = \emptyset}）ならば，
+            \eqn(${\app{m}{\bigcup_{i \in \mathbb{N}} A_i} = \sum_{i \in \mathbb{N}} \app{m}{A_i} \notag});
+        }
+        可測空間${#measureble-sp}の${\mathrm{\Omega}, \mathfrak{B}}と測度${m}の組${#measure-sp}を\dfn{測度空間}という．
+        (特に，可測空間上の測度${P}であって, ${\app{P}{\mathrm{\Omega}} = 1}であるような測度空間を確率空間という．)
+      }
+
+      +definition?:({${\sigma}有限性})?:(`sigma-finite`) {
+        測度空間${#measure-sp}について，
+          ${\app{m}{\Omega_i} < \infty }
+          かつ${\bigcup_{i \in \mathbb{N}} \Omega_i = \mathrm{\Omega}}
+        をみたす互いに素な可測集合の族${\brace{\Omega_i}_{i \in \mathbb{N}}}が存在するとき，
+        測度空間${#measure-sp}を\dfn{${\sigma}有限}な測度空間という．
+      }
+
+      +theorem{
+        ${#measure-sp}を測度空間とする．${\mathfrak{B}}の元の族${\brace{A_i}_{i \in \mathbb{N}}}について以下が成り立つ．
+        \enumerate{
+          * ${A_i \subset A_{i+1} \paren{i \in \mathbb{N}} \Rightarrow \lim_{i \to \infty} \app{m}{A_i} = \app{m}{\bigcup_{i \in \mathbb{N}} A_i}} 
+          * ${\app{m}{A_1} < \infty}かつ ${A_i \supset A_{i+1} \paren{i \in \mathbb{N}} \Rightarrow \lim_{i \to \infty} \app{m}{A_i} = \app{m}{\bigcap_{i \in \mathbb{N}} A_i}} 
+          * ${\liminf_{i \to \infty} \app{m}{A_i} \geq \app{m}{\liminf_{i \to \infty} A_i}}
+          * ${\app{m}{\bigcup_{i \in \mathbb{N}} A_i} < \infty \Rightarrow \limsup_{i \to \infty} \app{m}{A_i} \leq \app{m}{\limsup_{i \to \infty} A_i}}
+        }
+      }
+      +proof<
+        +enumerate{
+          * ${B_1 \coloneq A_1, B_{i+1} \coloneq A_{i+1} - A_{i} = A_{i+1} \cap A_{i}^\complement \paren{i \in \mathbb{N}}}とおくと，
+            族${\brace{B_i}_{i \in \mathbb{N}}}の要素はdef\ref(`def:measurable-space`);より${\mathfrak{B}}に含まれ，互いに素である．
+            また，${A_i = \bigcup_{j=1}^{i} B_j}であるので，
+            \alignat(2)(
+              ${|\app{m}{\bigcup_{i \in \mathbb{N}} A_i} | = \app{m}{\bigcup_{i \in \mathbb{N}} \bigcup_{j=1}^{i} B_j} ||
+                | | = \app{m}{\bigcup_{i \in \mathbb{N}} B_i} ||
+                | | = \sum_{i \in \mathbb{N}} \app{m}{B_i}| \text!{（∵${\sigma}加法性）} |
+                | | = \lim_{j \to \infty} \sum_{i=1}^{j} \app{m}{B_i} ||
+                | | = \lim_{j \to \infty} \app{m}{\bigcup_{i=1}^{j} B_i}| \text!{（∵${\sigma}加法性）} |
+                | | = \lim_{j \to \infty} \app{m}{A_j} || 
+                | }
+            );
+            より示せた．
+          * ${B_{i} \coloneq A_1 - A_{i} = A_1 \cap A_{i}^\complement \paren{i \in \mathbb{N}}}とおくと，
+            族${\brace{B_i}_{i \in \mathbb{N}}}の要素はdef\ref(`def:measurable-space`);より${\mathfrak{B}}に含まれ，${B_i \subset B_{i+1} \paren{i \in \mathbb{N}}}である．
+            また，
+            ${A_1 \supset B}ならば${\app{m}{A_1 - B} + \app{m}{B} = \app{m}{A_1} < \infty}なので，
+            \alignat(2)(
+              ${|\app{m}{\bigcap_{i \in \mathbb{N}} A_i} | = \app{m}{\bigcap_{i \in \mathbb{N}} \paren{A_1 - B_i}} ||
+                | | = \app{m}{A_1 - \bigcup_{i \in \mathbb{N}} B_i} ||
+                | | = \app{m}{A_1} - \app{m}{\bigcup_{i \in \mathbb{N}} B_i} ||
+                | | = \app{m}{A_1} - \lim_{i \to \infty} \app{m}{B_i} | \text!{∵(1)} |
+                | | = \lim_{i \to \infty} \paren{\app{m}{A_1} - \app{m}{B_i}} ||
+                | | = \lim_{i \to \infty} \app{m}{A_1 - B_i} ||
+                | | = \lim_{i \to \infty} \app{m}{A_i} ||
+                |}
+            );
+            より示せた．
+          * ${B_i \coloneq \bigcap_{j=i}^{\infty} A_j}とおくと，
+            ${B_i \subset A_i, B_i \subset B_{i+1} \paren{i \in \mathbb{N}}}なので，
+            \alignat(2)(
+              ${| \app{m}{\liminf_{i \to \infty} A_i} | = \app{m}{\bigcup_{i \in \mathbb{N}} \bigcap_{j=i}^{\infty} A_j} ||
+                | | = \app{m}{\bigcup_{i \in \mathbb{N}} B_i} ||
+                | | = \lim_{i \to \infty} \app{m}{B_i}| \text!{∵(1)} |
+                | | = \liminf_{i \to \infty} \app{m}{B_i} ||
+                | | \leq \liminf_{i \to \infty} \app{m}{A_i} ||
+                |}
+            );
+            より示せた．
+          * ${A \coloneq \bigcup_{i \in \mathbb{N}} A_i}とおくと，
+            \alignat(2)(
+              ${| \app{m}{\limsup_{i \to \infty} A_i} | = \app{m}{\bigcap_{i \in \mathbb{N}} \bigcup_{j=i}^{\infty} A_j} ||
+                | | = \app{m}{A} - \app{m}{\bigcup_{i \in \mathbb{N}} \paren{A - \bigcup_{j=i}^{\infty} A_j}} ||
+                | | = \app{m}{A} - \lim_{i \to \infty} \app{m}{A - \bigcup_{j=i}^{\infty} A_j}| \text!{∵(1)} |
+                | | = \lim_{i \to \infty} \paren{\app{m}{A} - \app{m}{A - \bigcup_{j=i}^{\infty} A_j}} ||
+                | | = \lim_{i \to \infty} \app{m}{\bigcup_{j=i}^{\infty} A_j} ||
+                | | = \limsup_{i \to \infty} \app{m}{\bigcup_{j=i}^{\infty} A_j} ||
+                | | \geq \limsup_{i \to \infty} \app{m}{A_j} ||
+                |}
+            );
+            より示せた．
+        }
+      >
+    >
+
+    +section{可測関数} <
+      +definition?:({可測関数})?:(`measurable-function`) {
+        ${#measure-sp}を測度空間とする．
+        ${f \colon-rel \mathrm{\Omega} \to \mathbb{R}^{*}}について，
+        任意の${a \in \mathbb{R}^{*}}で
+        \eqn(${\app{f^{-1}}{\openclosebracket{a, \infty}} = \set-intentional{\omega \in \mathrm{\Omega}}{\app{f}{\omega} > a} \in \mathfrak{B} \notag});
+        をみたすとき，${f}を\dfn{可測関数}という．
+      }
+
+      +proposition?*?:(`measurable-function-charactors`) {
+        ${#measure-sp}を測度空間，${f \colon-rel \mathrm{\Omega} \to \mathbb{R}^{*}}を可測関数とする．
+        任意の${a \in \mathbb{R}^{*}}で以下が成り立つ．
+        \enumerate{
+          * ${\app{f^{-1}}{\closeclosebracket{a, \infty}} = \set-intentional{\omega \in \mathrm{\Omega}}{\app{f}{\omega} \geq a} \in \mathfrak{B}}
+          * ${\app{f^{-1}}{\openopenbracket{-\infty, a}} = \set-intentional{\omega \in \mathrm{\Omega}}{\app{f}{\omega} < a} \in \mathfrak{B}}
+          * ${\app{f^{-1}}{\openclosebracket{-\infty, a}} = \set-intentional{\omega \in \mathrm{\Omega}}{\app{f}{\omega} \leq a} \in \mathfrak{B}}
+        }
+      }
+      +proof<
+        +enumerate{
+          * 可測関数の定義より，任意の${a \in \mathbb{R}^{*}}, ${n \in \mathbb{N}}について
+            \eqn(${\app{f^{-1}}{\openclosebracket{a-\frac{1}{n}, \infty}} = \set-intentional{\omega \in \mathrm{\Omega}}{\app{f}{\omega} > a-\frac{1}{n}} \in \mathfrak{B} \notag}); 
+            で${\sigma}代数の加算無限個の和は閉じているので，
+            \eqn(${\bigcup_{i \in \mathbb{N}} \set-intentional{\omega \in \mathrm{\Omega}}{\app{f}{\omega} > a-\frac{1}{n}} = \set-intentional{\omega \in \mathrm{\Omega}}{\app{f}{\omega} \geq a } \in \mathfrak{B}\notag});
+          * (1)のcomplementを取ればよい．
+          * 可測関数の${\openclosebracket{a, \infty}}の逆像に関するcomplementを取ればよい．
+        }
+      >
+      +lemma?*?:(`measurable-function-charactors`) {
+        ${#measure-sp}を測度空間，${f \colon-rel \mathrm{\Omega} \to \mathbb{R}^{*}}を可測関数とする．
+        任意の${a, b \in \mathbb{R}^{*} \paren{a < b}}で以下が成り立つ．
+        \enumerate{
+          * ${\app{f^{-1}}{\openopenbracket{a, b}} \in \mathfrak{B}}
+          * ${\app{f^{-1}}{\closeopenbracket{a, b}} \in \mathfrak{B}}
+          * ${\app{f^{-1}}{\openclosebracket{a, b}} \in \mathfrak{B}}
+          * ${\app{f^{-1}}{\closeopenbracket{a, b}} \in \mathfrak{B}}
+          * ${\app{f^{-1}}{\brace{a}} \in \mathfrak{B}}
+        }
+      }
+      +proof<
+        +p{
+          ${\app{f^{-1}}{\brace{-\infty}} \in \mathfrak{B}}，
+          ${\app{f^{-1}}{\brace{+\infty}} \in \mathfrak{B}}が確認できれば，
+          prop\ref(`prop:measurable-function-charactors`);より2つの積集合
+          （と必要であれば${\brace{+\infty}}，${\brace{-\infty}}を${f}で引き戻したものの和集合）を取ればよい．
+        }
+        +p{
+          prop\ref(`prop:measurable-function-charactors`);より，
+          ${\app{f^{-1}}{\closeopenbracket{-\infty, a}}}, ${\app{f^{-1}}{\openclosebracket{a, \infty}} \in \mathfrak{B}}なので，
+          \align(${
+            |\bigcap_{i \in \mathbb{N}}\ \app{f^{-1}}{\closeopenbracket{-\infty, -i}} |= \app{f^{-1}}{\brace{-\infty}} \in \mathfrak{B} \notag
+            |\bigcap_{i \in \mathbb{N}}\ \app{f^{-1}}{\openclosebracket{i, \infty}}   |= \app{f^{-1}}{\brace{\infty}} \in \mathfrak{B} \notag
+          |});
+          以上より示せた．
+        }
+      >
+
+      +lemma?*?:(`measurable-function-charactors-2`) {
+        ${#measure-sp}を測度空間とする．${f, g\colon-rel \mathrm{\Omega} \to \mathbb{R}^{*}}, ${f_i \colon-rel \mathrm{\Omega} \to \mathbb{R}^{*} \paren{i \in \mathbb{N}}}を可測関数とする．
+        このとき，以下が成り立つ．
+        \enumerate{
+          * ${\app{\paren{f + g}}{\omega} \coloneq \app{f}{\omega} + \app{g}{\omega}}, 
+            ${\app{\paren{f \cdot g}}{\omega} \coloneq \app{f}{\omega} \cdot \app{g}{\omega}}と定義すると，${f+g}, ${f\cdot g}は可測関数
+          * ${\sup \set-intentional{\app{f_i}{\omega}}{i \in \mathbb{N}}}, 
+            ${\inf \set-intentional{\app{f_i}{\omega}}{i \in \mathbb{N}}}は可測関数
+          * ${\limsup_{i \to \infty} \app{f_i}{\omega}}，${\liminf_{i \to \infty} \app{f_i}{\omega}}は可測関数
+          * 任意の${\omega \in \mathrm{\Omega}}で${\lim_{i \to \infty} \app{f_i}{\omega} \in \mathbb{R}^{*}}ならば，
+            ${\lim_{i \to \infty} \app{f_i}{\omega}}は可測関数
+        }
+      }
+      +proof<
+        +enumerate{
+          * ${\app{\paren{f + g}^{-1}}{\openclosebracket{a, \infty}} \in \mathbb{B}}を示せばよい．
+            \align(${
+              |\app{\paren{f + g}^{-1}}{\openclosebracket{a, \infty}} | = \set-intentional{\omega \in \mathrm{\Omega}}{\app{\paren{f + g}}{\omega} > a} \notag
+              |                                                       | = \set-intentional{\omega \in \mathrm{\Omega}}{\app{f}{\omega} + \app{g}{\omega} > a} \notag
+              |                                                       | = \bigcup_{r \in \mathbb{R}} \set-intentional{\omega \in \mathrm{\Omega}}{\app{f}{\omega} > a - r } \cap \set-intentional{\omega \in \mathrm{\Omega}}{\app{g}{\omega} > r} \label!(`measurable-function-charactors-2-1`)
+              |                                                       | = \bigcup_{q \in \mathbb{R}} \set-intentional{\omega \in \mathrm{\Omega}}{\app{f}{\omega} > a - q} \cap \set-intentional{\omega \in \mathrm{\Omega}}{\app{g}{\omega} > q} \label!(`measurable-function-charactors-2-2`)
+              |                                                       | \in \mathfrak{B} \label!(`measurable-function-charactors-2-3`)
+            |});
+            ${\text!{\ref-eq(`measurable-function-charactors-2-1`);} \to \text!{\ref-eq(`measurable-function-charactors-2-2`);} \colon-rel}左右の包含を示して等号が成立することを確認する．
+            \listing{
+              * ${\text!{\ref-eq(`measurable-function-charactors-2-1`);} \subset \text!{\ref-eq(`measurable-function-charactors-2-2`);} \colon-rel}
+                \align(${
+                  | \text!{\ref-eq(`measurable-function-charactors-2-1`);} \ni \omega' | \Rightarrow \exists r \in \mathbb{R}, \omega' \in \set-intentional{\omega \in \mathrm{\Omega}}{\app{f}{\omega} + r > a} \cap \set-intentional{\omega \in \mathrm{\Omega}}{\app{g}{\omega} > r } \notag 
+                  |                 | \Rightarrow \exists r \in \mathbb{R}, \exists \epsilon > 0, \omega' \in \set-intentional{\omega \in \mathrm{\Omega}}{\app{f}{\omega} + r > \paren{a-\epsilon}} \cap \set-intentional{\omega \in \mathrm{\Omega}}{\app{g}{\omega} > \paren{r+\epsilon}} \notag
+                  |                 | \Rightarrow \exists r \in \mathbb{R}, \exists \epsilon > 0, r \leq \exists q \leq r+\epsilon, \notag
+                  |                 | \and-also \omega' \in \set-intentional{\omega \in \mathrm{\Omega}}{\app{f}{\omega} + q > a} \cap \set-intentional{\omega \in \mathrm{\Omega}}{\app{g}{\omega} > q } \text!{（∵実数の稠密性）}\notag
+                  |                 | \Rightarrow \omega' \in \text!{\ref-eq(`measurable-function-charactors-2-2`);} \notag
+                |});
+                より示せた．
+              * ${\text!{\ref-eq(`measurable-function-charactors-2-1`);} \supset \text!{\ref-eq(`measurable-function-charactors-2-2`);} \colon-rel}
+                ${\mathbb{R} \supset \mathbb{Q}}なので示せた．
+            }
+            ${\text!{\ref-eq(`measurable-function-charactors-2-2`);} \to \text!{\ref-eq(`measurable-function-charactors-2-3`);} \colon-rel} ${\mathbb{Q}}の要素は加算無限個なので${\sigma}代数の性質より従う．
+
+          * 任意の${a \in \mathbb{R}^{*}}について，${\openclosebracket{a, \infty}}の逆像が${\mathfrak{B}}に入っていればよい．
+            ${a \in \mathbb{R}^{*}}を固定する．
+            ${\sup }の定義から，${\sup \set-intentional{\app{f_i}{\omega}}{i \in \mathbb{N}} > a}ならば，
+              あるインデックス${i}が存在して${\set-intentional{\omega \in \mathrm{\Omega}}{\app{f_i}{\omega} > a}}なので，
+            \eqn(${
+              \set-intentional{\omega \in \mathrm{\Omega}}{\sup \set-intentional{\app{f_i}{\omega}}{i \in \mathbb{N}} > a} 
+                \subset \bigcup_{i \in \mathbb{N}} \set-intentional{\omega \in \mathrm{\Omega}}{\app{f_i}{\omega} > a} \notag
+            });
+            一方，${\omega \in \bigcup_{i \in \mathbb{N}} \set-intentional{\omega \in \mathrm{\Omega}}{\app{f_i}{\omega} > a}}についても，
+            あるインデックス${i}について${\app{f_i}{\omega} > a}なので，${\sup}の定義より，
+            \eqn(${
+              \omega \in \set-intentional{\omega \in \mathrm{\Omega}}{\sup \set-intentional{\app{f_i}{\omega}}{i \in \mathbb{N}} > a} \notag
+            });なので，
+            \eqn(${
+              \set-intentional{\omega \in \mathrm{\Omega}}{\sup \set-intentional{\app{f_i}{\omega}}{i \in \mathbb{N}} > a} 
+                \supset \bigcup_{i \in \mathbb{N}} \set-intentional{\omega \in \mathrm{\Omega}}{\app{f_i}{\omega} > a} \notag
+            });
+            また，可測関数の${\openclosebracket{a, \infty}}の逆像は${\mathfrak{B}}に含まれるので，${\mathfrak{B}}は${\sigma}代数なので加算無限個の和についても閉じている．
+            以上より
+            \eqn(${
+              \set-intentional{\omega \in \mathrm{\Omega}}{\sup \set-intentional{\app{f_i}{\omega}}{i \in \mathbb{N}} > a} 
+                = \bigcup_{i \in \mathbb{N}} \set-intentional{\omega \in \mathrm{\Omega}}{\app{f_i}{\omega} > a}
+              \in \mathfrak{B} \notag
+            });
+            ${\inf}も同様．
+          
+          * ${\limsup_{i \to \infty} \app{f_i}{\omega} = \inf_{j \geq 1} \sup_{i \geq j} \app{f_i}{\omega}}なので，
+            (2)より， 
+            \eqn(
+              ${\inf_{j \geq 1} \sup_{i \geq j} \app{f_i}{\omega} \in \mathfrak{B} \notag}
+            );
+            同様に，
+            \eqn(
+              ${\liminf_{i \to \infty} \app{f_i}{\omega} = \sup_{j \geq 1} \inf_{i \geq j} \app{f_i}{\omega} \in \mathfrak{B} \notag}
+            );
+
+          * ${\lim_{i \to \infty} \app{f_i}{\omega} \in \mathbb{R}^{*} = \sup \set-intentional{\app{f_i}{\omega}}{i \in \mathbb{N}} = \inf \set-intentional{\app{f_i}{\omega}}{i \in \mathbb{N}}}なので，
+            (2)より成り立つ．
+        }
+      >
+
+      +lemma?*?:(`measurable-function-charactors-3`) {
+        ${#measure-sp}を測度空間とする．定数関数${r}を
+        \Diagram.new((70pt, 24pt));
+        \Diagram.set-object((10pt, 13pt))(${r});
+        \Diagram.set-object((15pt, 13pt))(${\colon-rel});
+        \Diagram.set-object((20pt, 13pt))(${\mathrm{\Omega}});
+        \Diagram.set-arrow((30pt, 11pt))((47pt, 11pt));
+        \Diagram.set-object((50pt, 13pt))(${\mathbb{R}^{*}});
+        \Diagram.set-object((21pt, 0pt))(${*});
+        \Diagram.set-element-arrow((30pt, 0pt))((47pt, 0pt));
+        \Diagram.set-object((51pt, 2pt))(${r});
+        \Diagram.show-diagram(`measurable-function-charactors-3-1`);
+        で与えると，これは可測関数になる．
+      }
+      +proof<
+        +p{
+          可測関数の定義から任意の${a \in \mathbb{R}^{*}}について，
+          ${\openclosebracket{a, \infty}}の逆像が${\mathfrak{B}}に入っていればいいが，
+          ${a \geq r}ではその逆像は${\emptyset \in \mathfrak{B}}, ${a < r}ではその逆像は${\mathrm{\Omega} \in \mathfrak{B}}なので示された．
+        }
+      >
+
+      +theorem?*?:(`measurable-function-charactors-4`) {
+        ${#measure-sp}を測度空間，
+        ${f, g\colon-rel \mathrm{\Omega} \to \mathbb{R}^{*}}を可測関数とする．
+        このとき，以下が成り立つ．
+        \enumerate{
+          * ${\set-intentional{\omega \in \mathrm{\Omega}}{\app{f}{\omega} > \app{g}{\omega}} \in \mathfrak{B}}
+          * ${\set-intentional{\omega \in \mathrm{\Omega}}{\app{f}{\omega} = \app{g}{\omega}} \in \mathfrak{B}}
+        }
+      }
+      +proof<
+        +enumerate{
+          * ${f-g}が可測関数であることが確認できればよい．
+            lem\ref(`lem:measurable-function-charactors-2`);より，可測関数同士の和と積について可測関数になり，
+            lem\ref(`lem:measurable-function-charactors-3`);より，定数関数のは可測関数なので，
+            ${f-g = f + (-1) * g}は可測関数．
+          可測関数の定義から任意の${a \in \mathbb{R}^{*}}について，
+          ${\openclosebracket{a, \infty}}の逆像が${\mathfrak{B}}に入っているので，
+          特に${a=0}の時が求める結果である．
+          * ${f-g}が可測関数なので，
+            lem\ref(`lem:measurable-function-charactors`);(5)より，
+            ${a=0}の時が求める結果となっている．
+        }
+      >
+    >
+
+    +section{単関数} <
+      +definition?:({特性関数})?:(`charactoristic-function`) {
+        特性関数${1_A \colon-rel \mathrm{\Omega} \to \mathbb{R}^{*}}を以下で与える．
+        \eqn(${
+          \app{1_A}{\omega} = \cases{
+            | 1  | \omega \in A
+            | 0  | \omega \nin A
+          |} \notag
+        });
+      }
+      +definition?:({単関数})?:(`simple-function`) {
+        ${#measure-sp}を測度空間とする．
+
+        ${f \colon-rel \mathrm{\Omega} \to \mathbb{R}^{*}}について，
+        ${a_i \in \mathbb{R}, A_i \in \mathfrak{B} (i \in \brace{1, 2, \cdots, n})}が存在して，
+        ${\app{f}{\omega} = \sum_{i=1}^n a_i \app{1_{A_i}}{\omega} }
+        と書けるとき，${f}を\dfn{単関数}であるという．
+      }
+      +p{
+        この定義の元で特性関数は単関数である．
+      }
+
+      +definition?:({単関数の積分})?:(`simple-function-integration`) {
+        ${#measure-sp}を測度空間，${f \colon-rel \mathrm{\Omega} \to \mathbb{R}^{*}}を単関数とする．
+        ${f}の${A \in \mathfrak{B}}での積分を
+        \eqn(${
+          \int_A f \ dm = \sum_{i=1}^{n} a_i \app{m}{A \cap A_i} \notag
+        });で与える．
+      }
+      +p{
+        ${f}の表し方は一意的ではないため，この積分のwell-definednessについて以下で確認していく．
+      }
+
+      +lemma?:({特性関数の積分の性質})?:(`characteristic-function-integration-charactors`) {
+        ${O, A\in \mathfrak{B}}のとき，以下が成り立つ．
+        \enumerate{
+          * ${B,C \in \mathfrak{B}}で${A = B \cup C}，${B \cap C = \emptyset}ならば，${ \int_O 1_A \ dm = \int_O 1_B \ dm + \int_O 1_C \ dm}
+          * ${b,c \in \mathbb{R}}ならば，${ \int_O \paren{b+c} \cdot 1_A \ dm = \int_O b \cdot 1_A \ dm + \int_O c \cdot 1_A  \ dm}
+        }
+      }
+      +proof<
+        +enumerate{
+          * 
+          \align(${
+            | \int_O 1_A \ dm |= \app{m}{O \cap A} \label!(`characteristic-function-integration-charactors-1`)
+            |                 |= \app{m}{\paren{O \cap B} \cup \paren{O \cap C}} \notag
+            |                 |= \app{m}{\paren{O \cap B}} + \app{m}{\paren{O \cap C}} \label!(`characteristic-function-integration-charactors-2`)
+            |                 |= \int_O 1_B \ dm + \int_O 1_C \ dm \label!(`characteristic-function-integration-charactors-3`)
+          |});
+          \ref-eq(`characteristic-function-integration-charactors-1`);，\ref-eq(`characteristic-function-integration-charactors-3`);は単関数の積分の定義から，
+          \ref-eq(`characteristic-function-integration-charactors-2`);は測度の${\sigma}加法性から従う．
+
+          * 
+          \align(${
+            | \int_O \paren{b+c} \cdot 1_A \ dm |= \paren{b+c}\app{m}{O \cap A} \notag
+            |                                   |= b\app{m}{O \cap A} + c\app{m}{O \cap A}\notag
+            |                                   |= \int_O b \cdot 1_A \ dm + \int_O c \cdot 1_A  \ dm \notag
+          |});
+          より示せた．
+        }
+      >
+      +proposition?:({単関数の積分の一意性})?:(`uniqueness-for-simple-function-integraion`) {
+        ${#measure-sp}を測度空間，
+        ${f, g\colon-rel \mathrm{\Omega} \to \mathbb{R}^{*}}を${f=g}であるような単関数とする．
+        任意の${O \in \mathfrak{B}}について，
+        \eqn(${\int_O f \ dm = \int_O g \ dm \notag});
+      }
+      +proof<
+        +p{
+          \eqn(${\app{f}{\omega} = \sum_{i=1}^n a_i \app{1_{A_i}}{\omega} 
+            \and-also \paren{a_i \in \mathbb{R}, A_i \in \mathfrak{B} (i \in \brace{1, 2, \cdots, n})}\notag});
+          \eqn(${\app{g}{\omega} = \sum_{j=1}^m b_j \app{1_{B_j}}{\omega}
+            \and-also \paren{b_j \in \mathbb{R}, B_j \in \mathfrak{B} (j \in \brace{1, 2, \cdots, m})}\notag});と置く．
+          また，関数として同じだけでなく積分後も一致するという意味での等号を${\equal^{\text!{∫}}}で与え，積分を保つとよぶ．
+        }
+        +p{
+          ${A_c := \mathrm{\Omega} - \bigcup_{i=1}^{n} A_i}について${a_c = 0}として${f'\colon-rel \mathrm{\Omega} \to \mathbb{R}^{*}}を
+          \eqn(${\app{f'}{\omega} = \app{f}{\omega} + a_c \app{1_{A_c}}{\omega} \notag});
+          で与えると，係数${0}の特性関数の積分は${0}なので，${f \equal^{\text!{∫}} f' }である．
+
+          同様に
+          ${B_c := \mathrm{\Omega} - \bigcup_{j=1}^{m} B_i}について${b_c = 0}として${g'\colon-rel \mathrm{\Omega} \to \mathbb{R}^{*}}を
+          \eqn(${\app{g'}{\omega} = \app{g}{\omega} + b_c \app{1_{B_c}}{\omega} \notag});
+          で与える．
+        }
+
+        +p{
+          lem\ref(`lem:characteristic-function-integration-charactors`);より，
+          単関数を互いに素な集合に分解する操作は積分を保つ．
+          単関数は有限個の集合に対して定義されるので，
+          どの集合も互いに素になるように分解することで得られる集合は高々${2^n}個である．
+          よって，この操作で得られるのはまた単関数であり，操作については積分を保つ．
+          単関数の互いに素な集合を合併する操作は積分を保つので，
+          高々${2^n}種類の係数の中で 同じ値の係数である集合の合併を取る操作で得られるのは単関数，操作については積分を保つ．
+          以上より，${f', g'}について，集合を互いに素に分割し，同じ係数で合併を取る操作をした単関数${f'', g''}を
+          \eqn(${\app{f''}{\omega} = \sum_{i=1}^{n'} a''_i \app{1_{A''_i}}{\omega} 
+            \and-also \paren{a''_i \in \mathbb{R}, A''_i \in \mathfrak{B} (i \in \brace{1, 2, \cdots, n'}), \bigcup_{i=1}^{n'} A''_i = \mathrm{\Omega}}\notag});
+          \eqn(${\app{g''}{\omega} = \sum_{j=1}^{m'} b''_j \app{1_{B''_j}}{\omega}
+            \and-also \paren{b''_j \in \mathbb{R}, B''_j \in \mathfrak{B} (j \in \brace{1, 2, \cdots, m'}), \bigcup_{j=1}^{m'} B''_j = \mathrm{\Omega}}\notag});
+          とおき，
+          ${f \equal^{\text!{∫}} f' \equal^{\text!{∫}} f''}，${g \equal^{\text!{∫}} g' \equal^{\text!{∫}} g''}となる．
+        }
+
+        +p{
+          \Diagram.new((200pt, 100pt));
+
+          \Diagram.set-object((35pt, 77pt))(${f});
+          \Diagram.set-object((65pt, 85pt))(${\text!{∫}});
+          \Diagram.set-dupline((50pt, 80pt))((80pt, 80pt));
+          \Diagram.set-object((90pt, 77pt))(${f'});
+          \Diagram.set-object((120pt, 85pt))(${\text!{∫}});
+          \Diagram.set-dupline((105pt, 80pt))((135pt, 80pt));
+          \Diagram.set-object((145pt, 77pt))(${f''});
+
+          \Diagram.set-object((35pt, 27pt))(${g});
+          \Diagram.set-object((65pt, 35pt))(${\text!{∫}});
+          \Diagram.set-dupline((50pt, 30pt))((80pt, 30pt));
+          \Diagram.set-object((90pt, 27pt))(${g'});
+          \Diagram.set-object((120pt, 35pt))(${\text!{∫}});
+          \Diagram.set-dupline((105pt, 30pt))((135pt, 30pt));
+          \Diagram.set-object((145pt, 27pt))(${g''});
+
+          \Diagram.set-dupline((38pt, 67pt))((38pt, 37pt));
+          \Diagram.show-diagram(`uniqueness-for-simple-function-integraion-1`);
+        }
+
+        +p{
+          ${\omega \in \mathrm{\Omega}}について，${\app{f''}{\omega} = \app{g''}{\omega}}より，
+          任意の${a \in \mathbb{R} ^ {*}}について，
+          \eqn(
+            ${\set-intentional{\omega \in \mathrm{\Omega}}{\app{f''}{\omega} = a} = \set-intentional{\omega \in \mathrm{\Omega}}{\app{g''}{\omega} = a} \notag}
+          );
+          特性関数に使われる集合は互いに素でその合併は全体集合かつ，その数は有限なので，
+          ${f'', g''}の各項の係数が一致することとその項の特性関数に使われる集合が等しいことは同値である．
+          よって，${n' = m'}であり，インデックスを適切に取り替えることで，
+          ${a''_i = b''_i, A''_i = B''_i}になるのでその積分値も等しく，${f'' \equal^{\text!{∫}} g''}．
+        }
+
+        +p{
+          \Diagram.new((200pt, 100pt));
+
+          \Diagram.set-object((35pt, 77pt))(${f});
+          \Diagram.set-object((65pt, 85pt))(${\text!{∫}});
+          \Diagram.set-dupline((50pt, 80pt))((80pt, 80pt));
+          \Diagram.set-object((90pt, 77pt))(${f'});
+          \Diagram.set-object((120pt, 85pt))(${\text!{∫}});
+          \Diagram.set-dupline((105pt, 80pt))((135pt, 80pt));
+          \Diagram.set-object((145pt, 77pt))(${f''});
+
+          \Diagram.set-object((35pt, 27pt))(${g});
+          \Diagram.set-object((65pt, 35pt))(${\text!{∫}});
+          \Diagram.set-dupline((50pt, 30pt))((80pt, 30pt));
+          \Diagram.set-object((90pt, 27pt))(${g'});
+          \Diagram.set-object((120pt, 35pt))(${\text!{∫}});
+          \Diagram.set-dupline((105pt, 30pt))((135pt, 30pt));
+          \Diagram.set-object((145pt, 27pt))(${g''});
+
+          \Diagram.set-dupline((38pt, 67pt))((38pt, 37pt));
+          \Diagram.set-dupline((148pt, 67pt))((148pt, 37pt));
+          \Diagram.set-object((154pt, 50pt))(${\text!{∫}});
+          \Diagram.show-diagram(`uniqueness-for-simple-function-integraion-2`);
+        }
+        +p{
+          以上より，元の${f, g} についても積分値が一致し，
+          ${f \equal^{\text!{∫}} g}．
+        }
+      >
+
+      +collorary?*?*{
+        単関数の特性関数を用いた表示では係数はすべて異なり，
+        また，特性関数に用いている集合は互いに素かつ全ての和集合は全体集合と思って良い．
+        加えて，単関数は可測関数（特性関数の証明と同様）．
+      }
+      
+      +lemma?*?:(`simple-function-charactors`){
+        ${#measure-sp}を測度空間，
+        ${f, g\colon-rel \mathrm{\Omega} \to \mathbb{R}^{*}}を非負値単関数，
+        ${A, B \in \mathfrak{B}}とするとき，以下が成り立つ．
+        \enumerate{
+          * ${A \cap B = \emptyset \Rightarrow \int_{A \cup B} f \ dm = \int_{A} f \ dm + \int_{B} f \ dm }
+          * ${A \subset B \Rightarrow \int_{A} f \ dm \leq \int_{B} f \ dm }
+          * ${\int_{A} \paren{f+g} \ dm = \int_{A} f \ dm + \int_{A} g \ dm }
+          * ${\forall \omega \in A, \app{f}{\omega} \leq \app{g}{\omega} \Rightarrow \int_{A} f \ dm \leq \int_{A} g \ dm }
+        }
+      }
+      +proof<
+        +p{
+          \eqn(${\app{f}{\omega} = \sum_{i=1}^n a_i \app{1_{A_i}}{\omega} 
+            \and-also \paren{a_i \in \mathbb{R}, A_i \in \mathfrak{B} (i \in \brace{1, 2, \cdots, p})}\notag});
+          \eqn(${\app{g}{\omega} = \sum_{j=1}^m b_j \app{1_{B_j}}{\omega}
+            \and-also \paren{b_j \in \mathbb{R}, B_j \in \mathfrak{B} (j \in \brace{1, 2, \cdots, q})}\notag});と置く．
+        }
+        
+        +enumerate{
+          * 積分の定義より，
+            \align(${
+              | \int_{A\cup B} f \ dm |= \sum_{i=1}^{p} a_i \app{m}{\paren{A\cup B} \cap A_i} \notag
+              |                       |= \sum_{i=1}^{p} a_i \app{m}{\paren{A\cap A_i} \cup \paren{B\cap A_i} } \notag
+              |                       |= \sum_{i=1}^{p} a_i \paren{\app{m}{A\cap A_i} + \app{m}{B\cap A_i}} \text!{（∵σ加法性）}\notag
+              |                       |= \sum_{i=1}^{p} a_i \app{m}{A\cap A_i} + \sum_{i=1}^{p} a_i \app{m}{B\cap A_i} \notag
+              |                       |= \int_{A} f \ dm + \int_{B} f \ dm\notag
+            |});
+          * 積分の定義より，
+            \align(${
+              | \int_{B} f \ dm |= \sum_{i=1}^{p} a_i \app{m}{B \cap A_i} \notag
+              |                 |= \sum_{i=1}^{p} a_i \app{m}{\paren{A \cap A_i} \cup \paren{\paren{B-A} \cap A_i}} \notag
+              |                 |= \sum_{i=1}^{p} a_i \paren{\app{m}{A \cap A_i} + \app{m}{\paren{B-A} \cap A_i}} \text!{（∵σ加法性）} \notag
+              |                 |\geq \sum_{i=1}^{p} a_i \app{m}{A \cap A_i} \text!{（∵測度，単関数の非負性）} \notag
+              |                 |= \int_{A} f \ dm\notag
+            |});
+          * 積分の定義より，
+            \align(${
+              | \int_{A} \paren{f+g} \ dm |= \sum_{i=1}^{p} a_i \app{m}{A \cap A_i} + \sum_{i=1}^{q} b_j \app{m}{A \cap B_j}\notag
+              |                           |= \int_{A} f \ dm + \int_{A} g \ dm\notag
+            |});
+          * 
+            \align(${
+              | \int_{A} f \ dm |= \sum_{i=1}^{p} a_i \app{m}{A \cap A_i}\notag
+              |                 |= \sum_{i=1}^{p} \sum_{j=1}^{q} a_i \app{m}{A \cap \paren{A_i \cap B_j}}\notag
+              |                 |\leq \sum_{i=1}^{p} \sum_{j=1}^{q} b_j \app{m}{A \cap \paren{A_i \cap B_j}} \notag
+              |                 |\and-also \paren{\text!{∵各${A_i \cap B_j}上で${\app{m}{A_i \cap B_j} \neq 0 \Rightarrow \app{f}{\omega} \leq \app{g}{\omega}}}} \notag 
+              |                 |= \sum_{j=1}^{q} b_j \app{m}{A \cap B_j}\notag
+              |                 |= \int_{A} g \ dm \notag
+            |});
+        }
+      >
+    >
+
+  >
+  +chapter{確認事項}<
+    +section{well-definedness}<
+      +subsection{${\sup, \inf}} <
+        +definition{
+          ${\mathfrak{R} \subset 2^{\mathbb{R}^{*}}}とする．
+          ${\sup \colon-rel \mathfrak{R} \to \mathbb{R}^{*}}を，${S \in \mathfrak{R}}について，
+          \eqn(${
+            \forall c \in S, c \leq \app{\sup}{S}
+            \land \forall \epsilon > 0, \exists c \in \mathfrak{R}, \app{\sup}{S} < c + \epsilon \notag
+          });
+          として定める．
+          また，${\inf \colon-rel \mathbb{R} \to \mathbb{R}^{*}}を，${S \in \mathfrak{R}}について，
+          \eqn(${
+            \forall c \in S, c \geq \app{\inf}{S}
+            \land \forall \epsilon > 0, \exists c \in \mathbb{R}, c < \app{\inf}{S} + \epsilon \notag
+          });
+          として定める．
+        }
+        +p{
+          この定義では，論理式を満たす値が存在するか，存在すればただ一つに決まるかを確認しなければならない．
+          ${\sup}について確認する．${\inf}も適切に読み替えることで確認できる．
+          \listing{
+            %% mada hajime %%
+            *（存在性）
+            ${R \coloneq \set-intentional{r \in \mathbb{R}}{\forall c \in S, c \leq r}}について考えると，特に${\infty}を含むのでこの集合は非空である．
+            ${c \in \mathbb{R}^{*} \suchthat \paren{\forall s \in S, s > c \land \forall r \in R, c \leq r}}
+            について考えると，この${c}は${R}に入ってなければならないので，Rは最小の元${c}が取れる．
+            ${R}の定義から，この${c}は${\forall \epsilon > 0, \exists s \in S, c - s < \epsilon}をみたすので，
+            存在が確認できた．
+            %% mada owari %%
+            *（一意性）論理式を満たすものが2つ取れたとする．これを${x,y \paren{x < y}}と置く．
+            このとき定義から，
+            ${ \forall \epsilon > 0, \exists c \in \mathbb{R}, c \geq x < y < c + \epsilon }
+            だが，任意の${\epsilon > 0}についてこれが言えるので，${x=y}．
+          }
+        }
+      >
+    >
+  >
+  +chapter{参考文献}<
+    +enumerate{
+      * 森真，ルベーグ積分超入門 -数理解析や数理ファイナンス理解のために- ，共立出版，2004
+    }
+  >
+
+>
