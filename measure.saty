@@ -11,12 +11,15 @@ let-math \set-intentional object limit =
   let-math \semicolon-rel = rel `;` in
   ${\ \pb{\ #object \semicolon-rel #limit\ }\ } 
 in
+let-math \family-array object =
+  ${\ \pb{\ #object \ }\ } 
+in
 document (|
   title = {解析学セミナー\: ルベーグ積分超入門};
   univ = {京都工芸繊維大学 工芸科学部 設計工学域 情報工学課程};
   number = {B4};
   author = {estis_jk};
-  date = {2021/06/06};
+  date = {2021/06/24};
   show-toc = true;
 |) '<
 
@@ -104,7 +107,7 @@ document (|
         測度空間${#measure-sp}を\dfn{${\sigma}有限}な測度空間という．
       }
 
-      +theorem{
+      +theorem?*?:(`measurable-set-properties`){
         ${#measure-sp}を測度空間とする．${\mathfrak{B}}の元の族${\brace{A_i}_{i \in \mathbb{N}}}について以下が成り立つ．
         \enumerate{
           * ${A_i \subset A_{i+1} \paren{i \in \mathbb{N}} \Rightarrow \lim_{i \to \infty} \app{m}{A_i} = \app{m}{\bigcup_{i \in \mathbb{N}} A_i}} 
@@ -580,6 +583,337 @@ document (|
             |});
         }
       >
+    +section{ルベーグ積分の定義} <
+      +p{
+        ${#measure-sp}を測度空間，
+        ${f\colon-rel \mathrm{\Omega} \to \mathbb{R}^{+}}を非負値可測関数とする．
+        ${f_i\colon-rel \mathrm{\Omega} \to \mathbb{R}^{+} \paren{i \in \mathbb{N_{>0}}}}を
+        \eqn(${
+          \app{f_i}{\omega} = \Math-sub.cases{
+            | \frac{k}{2^i} | \app{f}{\omega} \in \closeclosebracket{\frac{k}{2^i}, \frac{k+1}{2^i}}
+            | 2^i           | \app{f}{\omega} \geq 2^i
+          |}\notag
+        });
+        と置くと，これは可測関数になる．
+        
+        この関数は
+        \eqn(${
+          \forall \omega \in \mathrm{\Omega}, \math-skip!(1pt) \app{f_i}{\omega} \to \app{f}{\omega} \math-skip!(3pt) \paren{i \to \infty} \notag
+        });
+        を満たすので，以下の定義を得る．
+      }
+      +definition?:({可測関数の積分(1)})?:(`measurable-integration-1`) {
+        上の${f, f_i}の元で，${A \in \mathfrak{B}}上での積分${\int_A f \  dm}を，
+        \eqn(${
+          \int_A f \  dm = \lim_{i \to \infty} \int_A f_i \ dm
+        });
+        で与える．（以後のためにこの積分を\dfn{単関数の極限による積分}と呼ぶ．）
+      }
+      +p{
+        以上の定義のメリットは具体的な計算ができることにあるが，
+        デメリットとして定数倍を外に出す操作など，基本的な操作を確認するのに手間取ることになる．
+        それを容易に行えるのが以下の定義である．
+      }
+
+      +definition?:({可測関数の積分(2)})?:(`measurable-integration-2`) {
+        ${#measure-sp}を測度空間，
+        ${f\colon-rel \mathrm{\Omega} \to \mathbb{R}^{+}}を非負値可測関数とする．
+
+        ${A \in \mathfrak{B}}上での積分${\int_A f \  dm}を，
+        \eqn(${
+          \int_A f \  dm = \sup_{g\colon-rel \text!{単関数}, 0 \leq \app{g}{\omega} \leq \app{f}{\omega}} \int_A g \ dm
+        });
+        で与える．（以後のためにこの積分を\dfn{supによる積分}と呼ぶ．）
+      }
+
+      +p{
+        この定義のメリットは，supの性質から，極限へどのような近づけ方をしても一致し，関数同士の和や関数の定数倍が積分の外でも一致することを要請する．
+        ${F}を非負値可測関数の集合として和について図式で描くと，
+          \Diagram.new((130pt, 100pt));
+
+          \Diagram.set-object((25pt, 82pt))(${\paren{F, F}});
+          \Diagram.set-object((66pt, 90pt))(${\text!{+}_F});
+          \Diagram.set-arrow((62pt, 80pt))((82pt, 80pt));
+          \Diagram.set-object((90pt, 82pt))(${F});
+
+          \Diagram.set-arrow((38pt, 71pt))((38pt, 40pt));
+          \Diagram.set-object((15pt, 58pt))(${\text!{∫} \times \text!{∫}});
+          \Diagram.set-object((64pt, 58pt))(${\circlearrowright});
+          \Diagram.set-arrow((94pt, 71pt))((94pt, 40pt));
+          \Diagram.set-object((100pt, 58pt))(${\text!{∫}});
+
+          \Diagram.set-object((21pt, 32pt))(${\paren{\mathbb{R}^{+}, \mathbb{R}^{+}}});
+          \Diagram.set-object((65pt, 40pt))(${\text!{+}_{R^{+}}});
+          \Diagram.set-arrow((62pt, 30pt))((82pt, 30pt));
+          \Diagram.set-object((90pt, 32pt))(${\mathbb{R}^{+}});
+
+          \Diagram.show-diagram(`commutative-integration-of-sum`);
+        で，かっこいい．
+      }
+
+      +p{
+        結果としてこの２つの積分の定義は一致するため，具体的な計算や形式的な演算を容易にできる．
+        それを次の節で示していく．
+      }
+
+      +p{
+        さて，一般に可測関数が非負値に限らないとき，
+        \eqn(${
+          \app{f^+}{\omega} = \app{\max}{\app{f}{\omega}, 0} \notag
+        });
+        \eqn(${
+          \app{f^-}{\omega} = \app{\max}{-\app{f}{\omega}, 0} \notag
+        });
+        で与えると，
+        \eqn(${
+          f = f^+ - f^- \notag
+        });
+        であるような，非負値可測関数${f^+, f^-}に分解できる．
+        このそれぞれに対して積分することで可測関数${f}を求めることができる．
+        ただし，${\infty - \infty}は不定なので，${\int f^+ \ dm < \infty}かつ${\int f^- \ dm < \infty}でない場合に限り, 積分を定義する．
+        この条件を満たす可測関数${f}を\dfn{可積分である}とよぶ．
+      }
+    >
+    +subsection{エゴロフの定理} <
+      +theorem?:({エゴロフの定理})?:(`egorovs-theorem`){
+        ${#measure-sp}を測度空間，
+        ${\app{m}{\mathrm{\Omega}} < \infty}とする．
+        ${f_i\colon-rel \mathrm{\Omega} \to \mathbb{R}^+ \math-skip!(4pt)\paren{i \in \mathbb{N_{>0}}}}であるような
+        非負値可測関数列${\family-array{f_i}_{i \in \mathbb{N_{>0}}}}が可測関数${f}に測度0を除いて収束（概収束という）しているとき，
+        任意の ${\epsilon > 0} に対して，ある可測集合 ${H \in \mathfrak{B}} が存在して，
+        \enumerate{
+          * ${\app{m}{H} < \epsilon}
+          * ${H^\complement }で${\family-array{f_i}_{i \in \mathbb{N_{>0}}}}は${f}に一様収束する
+        }
+      }
+      +proof<
+        +p{
+          \eqn(${
+          \app{A}{r, i} \coloneq 
+            \bigcap_{k=i}^{\infty} 
+              \set-intentional{\omega \in \mathrm{\Omega}}{\abs{\app{f}{\omega} - \app{f_k}{\omega}} < \frac{1}{2^{i}}}
+              \math-skip!(4pt)
+              \paren{r \in \mathbb{N_{>0}}, i \in \mathbb{N_{>0}}}
+              \notag
+          });
+          とおく．
+          ${\abs{\app{f}{\omega} - \app{f_k}{\omega}}}が可測関数なので，その${\closeopenbracket{-\infty, \ \frac{1}{2^i}}}に対する逆像は可測，
+          その加算無限個の積集合も可測集合なので，この${\app{A}{r, i}}は可測集合である．
+        }
+        +p{
+          ${\lim_{i \to \infty} f_i = f}を${\epsilon\text!{-}\delta}論法で書くと，
+          \eqn(${
+            \forall \omega \in \mathrm{\Omega}, \forall \epsilon > 0, \exists N \in \mathbb{N_{>0}},
+             \forall n \geq N, \abs{\app{f}{\omega} - \app{f_n}{\omega}} < \epsilon
+             \notag
+          });
+          なので，どの${\omega \in \mathrm{\Omega}}についても，ある${N_\omega}以上の${n}で
+          ${\abs{\app{f}{\omega} - \app{f_n}{\omega}}  < \frac{1}{2^{i}}}であるような
+          ものがとれる．
+          よって，
+          \eqn(${
+            \lim_{i \to \infty} \app{A}{r, i} = \mathrm{\Omega} \notag
+          });
+        }
+        +p{
+          ${\family-array{\app{A}{r, i}}_{i \in \mathbb{N_{>0}}}}は${\app{A}{r, i}}の定義から単調増加なので，
+          \eqn(${
+            \app{A}{r, 1} \subset \app{A}{r, 2} \subset \cdots \notag
+          });
+          \eqn(${
+            \bigcup_{i=1}^{\infty} \app{A}{r, i} = \mathrm{\Omega} \notag
+          });
+          なので，thm\ref(`thm:measurable-set-properties`);より，
+          \eqn(${
+            \lim_{i \to \infty} \app{m}{\app{A}{r, i}} = \app{m}{\bigcup_{i=1}^{\infty} \app{A}{r, i}} = \app{m}{\mathrm{\Omega}} \notag
+          });
+        }
+        +p{
+          それぞれの${r \in \mathbb{N}_{> 0}}について，${\lim}の定義から，ある${n_r}以降の${n}について，
+          \eqn(${
+            \app{m}{\app{A}{r, n}} \geq \app{m}{\mathrm{\Omega}} - \frac{1}{2^r} \notag
+          });
+          ${H_R \coloneq \bigcup_{r \geq R, r \in \mathbb{N}_{>0}} \app{A}{r, n}^\complement}とおくと，
+          \align(${
+            | \app{m}{H_R}    |= \app{m}{\bigcup_{r \geq R, r \in \mathbb{N}_{>0}} \app{A}{r, n}^\complement} \notag
+            |                 |= \sum_{r \geq R, r \in \mathbb{N}_{>0}} \app{m}{\app{A}{r, n}^\complement} \math-skip!(2pt) \paren{\text!{∵ ${\sigma} 加法性，集合に重複がない場合は等号}} \notag
+            |                 |= \sum_{r \geq R, r \in \mathbb{N}_{>0}} \app{m}{\mathrm{\Omega}} - \app{m}{\app{A}{r, n}} \notag
+            |                 |\geq \sum_{r \geq R, r \in \mathbb{N}_{>0}} \frac{1}{2^r} \notag
+            |                 |= \frac{1}{2^{R-1}} \notag
+          |});
+        }
+        +p{
+          ${\omega \in H_R^{\complement} = \bigcap_{r \geq R, r \in \mathbb{N}_{>0}} \app{A}{r, n}}では，
+          \eqn(${
+            \forall r \geq R, \forall n \geq n_r, \abs{\app{f}{\omega} - \app{f_n}{\omega}} < \frac{1}{2^r} \notag
+          });
+        }
+        +p{
+          主張に戻ると，
+          ${\epsilon}に対しては，${\frac{1}{2^R} < \epsilon}を満たすように${R}をとればいい．
+          このときの${R}について，${H_R^\complement}上で一様収束することが確認できればいいが，
+          一様収束の定義は，
+          \eqn(${
+            \lim_{n \to \infty} \sup_{\omega \in S} \abs{\app{f}{\omega} - \app{f_n}{\omega}} = 0 \notag
+          });
+          なので，
+          任意の${\delta > 0}に対して，${\frac{1}{2^r} < \min \paren{\delta,\  \frac{1}{2^R}}}
+          であるような${r}をとってこれば，${n_r \leq n}で，
+          \eqn(${
+            \sup_{\omega \in H_R^\complement} \abs{\app{f}{\omega} - \app{f_n}{\omega}} \leq \frac{1}{2^r} < \delta \notag
+          });
+          より示せた．
+        }
+      >
+    >
+    +theorem{
+      ${#measure-sp}を測度空間，
+      ${O \in \mathfrak{B}}とする．
+      ${f_i\colon-rel \mathrm{\Omega} \to \mathbb{R}^+ \math-skip!(4pt)\paren{i \in \mathbb{N_{>0}}}}であるような
+      非負値可測関数列${\family-array{f_i}_{i \in \mathbb{N_{>0}}}}が可測関数${f}に測度0を除いて収束（概収束という）しているとき，
+      \eqn(${
+        \int_O f \ dm = \lim_{n \to \infty} \int_O f_n \ dm \notag
+      });
+      （等号の左側の積分はsupによる積分，右側の積分は単関数の極限による積分）
+    }
+    +proof<
+      +p{
+        ${\app{m}{O} < \infty}のとき
+      }
+      +p{
+        適当な${f}に収束する非負値単関数増加列${f_i}を取ってくる．
+        （これは単関数の極限に用いる単関数列も含む）
+        このとき，thm\ref(`thm:egorovs-theorem`);より，
+        \eqn(${
+          \forall \epsilon > 0, \exists H \in \mathfrak{B}, 
+            \paren{
+              \app{m}{H}
+              \land \lim_{n \to \infty} \sup_{\omega \in H^\complement} \abs{\app{f}{\omega} - \app{f_n}{\omega}} = 0
+            } \notag
+        });
+        特に後者の主張より，
+        \eqn(${
+          \forall \delta > 0, \exists N \in \mathbb{N}, \forall n \geq N,
+            \forall \omega \in H^\complement, \abs{\app{f}{\omega} - \app{f_n}{\omega}} < \delta
+            \notag
+        });
+        なので，任意の単関数${g\colon-rel \mathrm{\Omega} \to \mathbb{R}^+ \; \ \forall \omega \in O, \app{g}{\omega} \geq \app{f}{\omega}}
+        について，上の${\delta, N}について，${N \leq n}で
+        \align(${
+          | \app{f_n}{\omega} - \app{g}{\omega} |= \paren{\app{f_n}{\omega} - \app{f}{\omega}} + \paren{\app{f}{\omega}- \app{g}{\omega}}  \notag
+          |                                     |\geq - \delta  \notag
+        |});
+        より，
+        \align(${
+          | \int_O g \ dm |= \int_{O\cap H} g \ dm + \int_{O\cap H^\complement} g \ dm \notag
+          |               |\leq \max_{\omega \in O\cap H} \app{g}{\omega} \cdot \app{m}{O\cap H}
+                                  + \int_{O\cap H^\complement} \paren{f_n + \delta} \ dm \notag
+          |               |\leq \max_{\omega \in O\cap H} \app{g}{\omega} \cdot \epsilon
+                                  + \delta \cdot \app{m}{H^\complement} + \int_{O} f_n  \ dm \notag
+        |});
+      }
+      +p{
+        この${n}に関する極限は，
+        \align(${
+          |\int_O g \ dm  |\leq \max_{\omega \in O\cap H} \app{g}{\omega} \cdot \epsilon
+                                  + \delta \cdot \app{m}{H^\complement} 
+                                  + \lim_{n \to \infty} \int_{O} f_n  \ dm \notag
+        |});
+        ${\epsilon, \delta}は任意にとれたので，不等式
+        \align(${
+          |\int_O g \ dm  |\leq \lim_{n \to \infty} \int_{O} f_n  \ dm \notag
+        |});
+        を得る．
+      }
+      +p{
+        よって，${\lim_{n \to \infty} \int_{O} f_n  \ dm}は${f}以下の任意の${g}についての積分の上界になっているので，supによる積分の定義から，
+        \align(${
+          |\int_O f \ dm  |\leq \lim_{n \to \infty} \int_{O} f_n  \ dm \notag
+        |});
+      }
+      +p{
+        一方，
+        ${f_i\colon-rel \mathrm{\Omega} \to \mathbb{R}^+ \math-skip!(4pt)\paren{i \in \mathbb{N_{>0}}}}
+        は単調増加列なので，
+        ${\int_O f_n \ dm \leq \int_O f \ dm}
+        より，その${n}に関する極限は，
+        ${\lim_{n \to \infty} \int_O f_n \ dm \leq \int_O f \ dm}
+      }
+      +p{
+        以上から，2つの不等式を合わせて，
+        ${\lim_{n \to \infty} \int_O f_n \ dm = \int_O f \ dm}
+      }
+
+      +p{
+        ${\app{m}{O} = \infty}のとき，
+        ${f}以下の任意の単関数${g}をとってきて，${g = \sum_{i=1}^{n} a_i 1_{A_i}}とおく．
+        \listing{
+          * ${\int_O g \ dm = \infty}のとき
+          * ${\int_O g \ dm < \infty}のとき
+        }
+        で場合分けが必要である．
+      }
+      +p{
+         ${\int_O g \ dm = \infty}のとき
+      }
+        +p{
+          ${g}は有限係数の特性関数の有限個の項の和なので，少なくとも一つ以上のindex で，
+          ${\app{m}{A_{i}} = \infty}．
+          そのうち一つを ${i_0}とおく．
+          ${\app{g}{\omega} \leq \app{f}{\omega} = \lim_{n \to \infty} \app{f_n}{\omega}}より，
+          \eqn(${
+            B_n \coloneq \set-intentional{\omega \in A_{i_0} \cap O}{\app{f_n}{\omega} \leq \frac{a_{i_0}}{2} } \notag
+          });
+          とおくと，${B_n \in \mathfrak{B}}で，かつ，
+          ${f_n}が単調増加なので，${\family-array{B_n}}は単調増加かつ
+          ${\bigcup_{n=1}^{\infty} B_n = A_{i_0} \cap O}．
+          よって，thm\ref(`thm:measurable-set-properties`);より，
+          \eqn(${
+            \lim_{n \to \infty} \app{m}{B_n} = \app{m}{A_{i_0} \cap O} = \infty \notag
+          });．
+        }
+        +p{
+          一方，${B_n \in \omega}について，${\app{f_n}{\omega} \geq \frac{a_i}{2} }なので，
+          \eqn(${
+            \int_O f_n \ dm \geq \frac{a_{i_0}}{2} \app{m}{B_n} \notag
+          });
+          より，${n}に関する極限は，
+          \eqn(${
+            \lim_{n \to \infty} \int_O f_n \ dm \geq \lim_{n \to \infty} \frac{a_{i_0}}{2} \app{m}{B_n} = \infty \notag
+          });
+          なので，
+          \eqn(${
+             \lim_{n \to \infty} \int_O f_n \ dm = \int_O f \ dm = \sup_{g\colon-rel \text!{単関数}, 0 \leq \app{g}{\omega} \leq \app{f}{\omega}} \int_O g \ dm \notag
+          });
+        }
+      +p{
+        ${\int_O g \ dm < \infty}のとき
+      }
+      +p{
+        ${O' \coloneq \bigcup_{i = 1}^{n} \paren{A_i \cap O}}とおくと，
+        ${\app{m}{O'} < \infty}でなければならない．
+        この${O'}上での積分を考えると，
+        \align(${
+           | \lim_{n \to \infty} \int_O f_n \ dm |\geq \lim_{n \to \infty} f_n \ dm \notag
+           |                                     |= \int_{O'} f \ dm\math-skip!(4pt) \text!{（∵${\app{m}{O} < \infty}のときの議論）} \notag
+           |                                     |\geq \int_{O'} g \ dm \notag
+           |                                     |= \int_{O} g \ dm \notag
+        |});
+        ${g}に関するsupを取ると，
+        \eqn(${
+           \lim_{n \to \infty} \int_O f_n \ dm \geq \int_{O} f \ dm \notag
+        });
+        を得る．
+        一般に
+        ${\int_O f_n \ dm \leq \int_O f \ dm}
+        なので，
+        ${\lim_{n \to \infty} \int_O f_n \ dm \leq \int_O f \ dm}
+        より，　
+        \eqn(${
+          \lim_{n \to \infty} \int_O f_n \ dm = \int_O f \ dm \notag
+        });
+      }
+    >
     >
 
   >
