@@ -19,19 +19,12 @@ document (|
   univ = {京都工芸繊維大学 工芸科学部 設計工学域 情報工学課程};
   number = {B4};
   author = {estis_jk};
-  date = {2021/06/24};
+  date = {2020/10/02};
   show-toc = true;
-|) '<
-
-  +preface {
+|) '< +preface {
     測度論で確率論を✝完全理解✝したい．
     ついでに情報理論もやりたいし， 更には最近始まった情報幾何のゼミでも活かしていきたい．
-    ところで君， 学部なんだったっけ？
-  }
-  
-  +chapter{抽象的測度論}<
-    +p{
-      普通の本だと先にボレル集合をとってきて測度を構成して……ってやるけど， 
+    ところで君， 学部なんだったっけ？ } +chapter{抽象的測度論}< +p{ 普通の本だと先にボレル集合をとってきて測度を構成して……ってやるけど， 
       今回の本ではとりあえず測度・可測関数の性質を確認してから構成してという流れでした．
       それに従って実装をしていきます．
     }
@@ -679,7 +672,7 @@ document (|
         ${#measure-sp}を測度空間，
         ${\app{m}{\mathrm{\Omega}} < \infty}とする．
         ${f_i\colon-rel \mathrm{\Omega} \to \mathbb{R}^+ \math-skip!(4pt)\paren{i \in \mathbb{N_{>0}}}}であるような
-        非負値可測関数列${\family-array{f_i}_{i \in \mathbb{N_{>0}}}}が可測関数${f}に測度0を除いて収束（概収束という）しているとき，
+        非負値可測関数列${\family-array{f_i}_{i \in \mathbb{N_{>0}}}}が可測関数${f}に測度0を除いて収束しているとき，
         任意の ${\epsilon > 0} に対して，ある可測集合 ${H \in \mathfrak{B}} が存在して，
         \enumerate{
           * ${\app{m}{H} < \epsilon}
