@@ -19,12 +19,19 @@ document (|
   univ = {京都工芸繊維大学 工芸科学部 設計工学域 情報工学課程};
   number = {B4};
   author = {estis_jk};
-  date = {2020/10/02};
+  date = {2021/07/11};
   show-toc = true;
-|) '< +preface {
+|) '<
+
+  +preface {
     測度論で確率論を✝完全理解✝したい．
     ついでに情報理論もやりたいし， 更には最近始まった情報幾何のゼミでも活かしていきたい．
-    ところで君， 学部なんだったっけ？ } +chapter{抽象的測度論}< +p{ 普通の本だと先にボレル集合をとってきて測度を構成して……ってやるけど， 
+    ところで君， 学部なんだったっけ？
+  }
+  
+  +chapter{抽象的測度論}<
+    +p{
+      普通の本だと先にボレル集合をとってきて測度を構成して……ってやるけど， 
       今回の本ではとりあえず測度・可測関数の性質を確認してから構成してという流れでした．
       それに従って実装をしていきます．
     }
@@ -518,7 +525,7 @@ document (|
         }
       >
 
-      +collorary?*?*{
+      +corollary?*?*{
         単関数の特性関数を用いた表示では係数はすべて異なり，
         また，特性関数に用いている集合は互いに素かつ全ての和集合は全体集合と思って良い．
         加えて，単関数は可測関数（特性関数の証明と同様）．
@@ -666,6 +673,10 @@ document (|
         ただし，${\infty - \infty}は不定なので，${\int f^+ \ dm < \infty}かつ${\int f^- \ dm < \infty}でない場合に限り, 積分を定義する．
         この条件を満たす可測関数${f}を\dfn{可積分である}とよぶ．
       }
+
+      +p{
+        積分の際，積分領域が指定されていない場合，${\mathrm{\Omega}}上での積分をするものとする．
+      }
     >
     +subsection{エゴロフの定理} <
       +theorem?:({エゴロフの定理})?:(`egorovs-theorem`){
@@ -759,7 +770,7 @@ document (|
         }
       >
     >
-    +theorem{
+    +theorem?*?:(`integral-equation`){
       ${#measure-sp}を測度空間，
       ${O \in \mathfrak{B}}とする．
       ${f_i\colon-rel \mathrm{\Omega} \to \mathbb{R}^+ \math-skip!(4pt)\paren{i \in \mathbb{N_{>0}}}}であるような
@@ -906,6 +917,420 @@ document (|
           \lim_{n \to \infty} \int_O f_n \ dm = \int_O f \ dm \notag
         });
       }
+    >
+    +section{収束定理} <
+      +p{
+        ここまでやってくると，積分と${\lim}を交換したくなるので交換します．
+      }
+      +subsection{準備} <
+        +lemma?*?:(`monotone-convergence-theorem`) {
+          ${#measure-sp}を測度空間とする．
+          \enumerate{
+            * ${f_i\colon-rel \mathrm{\Omega} \to \mathbb{R}^{+}}であるような非負値可測関数列${\family-array{f_i}_{i=1}^{\infty}}に対して，
+              \eqn(${
+                \app{f}{\omega} \coloneq \sum_{i=1}^{\infty} \app{f_i}{\omega} \notag
+              });
+              とおく．このとき，
+              \eqn(${
+                \int f \ dm = \sum_{i=1}^{\infty} \int f_i \ dm \notag
+              });
+              が，左辺が発散すれば右辺も発散するという意味で成り立つ．
+            *  (単調収束定理）
+              ${f_i\colon-rel \mathrm{\Omega} \to \mathbb{R}^{+}}であるような非負値可測関数列${\family-array{f_i}_{i=1}^{\infty}}について，
+              \eqn(${
+                \forall \omega \in \mathrm{\Omega}, 0 \leq \app{f_1}{\omega} \leq \app{f_2}{\omega} \leq \cdots \to \app{f}{\omega} \notag
+              });
+              を満たすとする．
+              このとき，
+              \eqn(${
+                \lim_{i \to \infty} \int f_i \ dm = \int f \ dm \notag
+              });
+              が，左辺が発散すれば右辺も発散するという意味で成り立つ．
+          }
+        }
+        +proof<
+          +enumerate{
+            * ${f_i}に収束する非負単関数の単調増加列${\family-array{f_{i,j}}_{j=1}^{\infty}}に対して，
+            \eqn(${
+              g_j \coloneq \sum_{i=1}^{j} f_{i,j} \notag
+            });
+            とおく．
+            （${f_i}に収束する単関数は，単関数の極限による積分のときに定義した単関数の族が一つの例だが，ここでは任意に取って良いことに注意．）
+            このとき，
+            \eqn(${
+              g_{j+1} - g_j = \sum_{i=1}^{j} \paren{f_{i,j+1} - f_{i,j}} + f_{j+1, j+1} \notag 
+            });
+            で，${f_{i,j+1} - f_{i,j}}は単調増加な単関数を取ってきているので非負，${f_{j+1, j+1}}は非負値であることから，
+            ${g_{i,j}}は単調増加である．
+            \eqn(${
+              \forall j \in \mathbb{N}, f = \sum_{i=1}^{\infty} f_i 
+                \geq \sum_{i=1}^{j} f_i 
+                \geq \sum_{i=1}^{j} f_{i,j} 
+                = g_j \label!(`monotone-convergence-theorem-1`)
+            });
+            また，${\forall k \in \mathbb{N}}について，
+            \eqn(${
+              \lim_{j \to \infty} g_j = \lim_{j \to \infty} \sum_{i=1}^{j} f_{i,j}
+                                      \geq \lim_{j \to \infty} \sum_{i=1}^{k} f_{i,j}
+                                      = \sum_{i=1}^{k} \lim_{j \to \infty} f_{i,j}
+                                      = \sum_{i=1}^{k} f_i \notag
+            });
+            なので，${k \to \infty}のとき，
+            \eqn(${
+              \lim_{j \to \infty} g_j \geq f \label!(`monotone-convergence-theorem-2`)
+            });
+            となる．
+            よって，\ref-eq(`monotone-convergence-theorem-1`);，\ref-eq(`monotone-convergence-theorem-2`);より，
+            \eqn(${
+              \lim_{j \to \infty} g_j = f 
+            });
+            lem \ref(`lem:measurable-function-charactors-2`);より${f}は可測となる．
+            thm \ref(`thm:integral-equation`);より，${f}に収束する単関数列の極限は積分後も一致するので，
+            \eqn(${
+              \int f \ dm = \lim_{j \to \infty} \int g_j \ dm \notag
+            });
+            \AZMathEquation.align(${
+              |\int f \ dm  |= \lim_{j \to \infty} \int g_j \ dm \notag
+              |             |= \lim_{j \to \infty} \int \paren{\sum_{i=1}^{j} f_{i,j}}  \ dm \notag
+              |             |= \lim_{j \to \infty} \sum_{i=1}^{j} \int  f_{i,j}  \ dm \text!{（∵lem\ref(`lem:simple-function-charactors`);(3)）}\notag
+              |             |\leq \lim_{j \to \infty} \sum_{i=1}^{j} \int  f_i  \ dm \notag
+              |             |= \sum_{i=1}^{\infty} \int f_i \ dm \label!(`monotone-convergence-theorem-3`)
+            |});
+            一方，
+            \eqn(${
+              \forall j \in \mathbb{N}, f = \sum_{i=1}^{\infty} f_i \notag
+            });
+            なので，
+            \eqn(${
+              \int f \ dm \geq \int \paren{\sum_{i=1}^j f_i} \ dm 
+                          = \sum_{i=1}^j \int f_i \ dm \text!{（∵lem\ref(`lem:simple-function-charactors`);(3)）} \notag
+            });
+            より，\eqn(${
+              \int f \ dm \geq \sum_{i=1}^\infty \int f_i \ dm \label!(`monotone-convergence-theorem-4`)
+            });
+            以上より，\ref-eq(`monotone-convergence-theorem-3`);，\ref-eq(`monotone-convergence-theorem-4`);なので，
+            \eqn(${
+              \int f \ dm = \sum_{i=1}^\infty \int f_i \ dm \notag
+            });
+            * ${f'_1 \coloneq f_1}，${f'_{k+1} \coloneq f_{k+1} - f_k }とおくと，
+            ${\family-array{f'_i}_{i=1}^{\infty}}は非負値関数列になる．
+            この${\family-array{f'_i}_{i=1}^{\infty}}について，
+            ${f = \sum_{i=1}^{\infty} f'_i}とおくと，(1)より，
+            \eqn(${
+              \int f \ dm = \sum_{i=1}^{\infty} \int f'_i \ dm
+            });
+            だが，
+            ${f_i = \sum_{k=1}^{i} f'_k}なので，
+            \AZMathEquation.align(${
+              |\lim_{i \to \infty} \int f_i \ dm |= \lim_{i \to \infty} \int \paren{\sum_{k=1}^i f'_k} \ dm \notag
+              |                                  |= \lim_{i \to \infty} \sum_{k=1}^i \int f'_k \ dm\text!{（∵lem\ref(`lem:simple-function-charactors`);(3)）} \notag
+              |                                  |= \sum_{k=1}^{\infty} \int f'_k \ dm \notag
+              |                                  |=  \int f \ dm \notag
+            |});
+          }
+        >
+        +lemma?:({ファトゥの補題})?:(`Fatous-lemma`){
+          ${f_i\colon-rel \mathrm{\Omega} \to \mathbb{R}^{+}}であるような非負値可測関数列${\family-array{f_i}_{i=1}^{\infty}}について，
+          \eqn(${
+            \int \liminf_{i \to \infty} f_i \ dm \leq \liminf_{i \to \infty} \int f_i \ dm \notag
+          });
+        }
+        +proof<
+          +p{
+            \eqn(${
+              \app{g_i}{\omega} \coloneq \inf \set-intentional{\app{f_n}{\omega}}{n \geq i} \notag
+            });
+            とおく．
+            ${\forall i \in \mathbb{B}, \app{f_i}{\omega} \geq 0}より，${\app{g_i}{\omega} \geq 0}．
+            また，
+            \eqn(${
+              \app{g_i}{\omega} \leq \app{g_{i+1}}{\omega} \text!{（∵${\inf}のdef）} \notag
+            });
+            lem \ref(`lem:monotone-convergence-theorem`);(2)より，
+            \eqn(${
+              \lim_{i \to \infty} \int g_i \ dm = \int \lim_{i \to \infty} g_i \ dm \notag
+            });
+          }
+          +p{
+            右辺から，
+            \eqn(${
+              \int \lim_{i \to \infty} g_i \ dm = \int \lim_{i \to \infty} \inf_{i \leq k} f_k \ dm  
+                                                = \int \liminf_{i \to \infty} f_i \ dm \notag
+            });
+          }
+          +p{
+            左辺から，
+            \eqn(${
+              \lim_{i \to \infty} \int g_i \ dm = \liminf_{i \to \infty} \int g_i \ dm \leq \liminf_{i \to \infty} \int f_i \ dm \notag
+            });
+          }
+          +p{
+            よって，
+            \eqn(${
+              \int \liminf_{i \to \infty} f_i \ dm \leq \liminf_{i \to \infty} \int f_i \ dm \notag
+            });
+            を得る．
+          }
+        >
+        +definition?:({概収束，測度収束})?*{
+          ${#measure-sp}を測度空間，
+          ${f\colon-rel \mathrm{\Omega} \to \mathbb{R}^{*}}を可測関数，
+          ${f_i\colon-rel \mathrm{\Omega} \to \mathbb{R}^{*}}であるような可測関数列${\family-array{f_i}_{i=1}^{\infty}}とする．
+          \enumerate{
+            * \eqn(${
+              \app{m}{\set-intentional{\omega \in \mathrm{\Omega}}{\lim_{i \to \infty} \app{f_i}{\omega} \neq \app{f}{\omega}}} = 0 \notag
+            });
+            を満たすとき，${\family-array{f_i}_{i=1}^{\infty}}は${f}に概収束する，またはほとんどいたるところ（almost everywhere）で収束するといい，
+            ${f_i \to f \ a.e.} と表す．
+            * \eqn(${
+              \forall \epsilon > 0, \lim_{i \to \infty} \app{m}{\set-intentional{\omega \in \mathrm{\Omega}}{\abs{\app{f_i}{\omega} - \app{f}{\omega}} > \epsilon}} = 0 \notag
+            });
+            を満たすとき，${\family-array{f_i}_{i=1}^{\infty}}は${f}に測度収束するという．
+          }
+        }
+        +p{
+          (1)で測る集合は必ずしも可測とは限らないので，概収束するかは収束するかを確認しないといけない．
+          一方，(2)では必ず可測になるので(1)に比べ簡単に条件を満たすかを確認できる．
+        }
+        +definition?*?*{
+          ${#measure-sp}を測度空間，
+          ${f_i\colon-rel \mathrm{\Omega} \to \mathbb{R}^{*}}であるような可測関数列${\family-array{f_i}_{i=1}^{\infty}}とする．
+          \eqn(${
+            \exists M \in \mathbb{R}, \forall i \in \mathbb{N}, \forall \omega \in \mathrm{\Omega}, \abs{\app{f_i}{\omega}} \leq M \notag
+          });
+          を満たすとき，可測関数列${\family-array{f_i}_{i=1}^{\infty}}は一様有界であるという．
+        }
+      >
+      +subsection{本題} <
+        +theorem?:({ルベーグの有界収束定理})?:(`lebesgues-bounded-convergence-theorem`){
+          ${#measure-sp}を測度空間，${\app{m}{\mathrm{\Omega}} < \infty}とする．
+          一様有界な可測関数列${\family-array{f_i}_{i=1}^{\infty}}が可測関数${f}に概収束するならば，
+          \eqn(${
+            \lim_{i \to \infty} \int f_i \ dm = \int f \ dm \notag
+          });
+        }
+        +proof<
+          +p{
+            \eqn(${
+              N \coloneq \set-intentional{\omega \in \mathrm{\Omega}}{\lim_{i \to \infty} \app{f_i}{\omega} \neq \app{f}{\omega}} \notag
+            });
+            とおく．
+            ${f_i \to f \ a.e.}なので，${\app{m}{N} = 0}．
+            よって，
+            \AZMathEquation.align(${
+              |\int_{N^\complement} f_n \ dm |= \int f_n \ dm \notag
+              |\int_{N^\complement} f \ dm |= \int f \ dm \notag
+            |});
+            \eqn(${
+              M \coloneq \sup \set-intentional{\abs{\app{f_i}{\omega}}}{i \in \mathbb{N}} \notag
+            });
+            とおくと，${\family-array{f_i}_{i=1}^{\infty}}が一様有界なので，${M < \infty}．
+          }
+          +p{
+            lem \ref(`lem:Fatous-lemma`);より，
+            \AZMathEquation.align(${
+              | \int \liminf_{i \to \infty} \paren{M + f_i} \ dm |\leq \liminf_{i \to \infty} \int \paren{M + f_i} \ dm \label!(`lebesgues-bounded-convergence-theorem-1`)
+              | \int \liminf_{i \to \infty} \paren{M - f_i} \ dm |\leq \liminf_{i \to \infty} \int \paren{M - f_i} \ dm \label!(`lebesgues-bounded-convergence-theorem-2`)
+            |});
+            よって，
+            \AZMathEquation.align(${
+              | \int \liminf_{i \to \infty} \paren{M + f_i} \ dm |= \int M + \liminf_{i \to \infty} f_i \ dm \notag
+              |                                                  |= M \app{m}{\mathrm{\Omega}} + \int \liminf_{i \to \infty} f_i \ dm \notag
+              |                                                  |= M \app{m}{\mathrm{\Omega}} + \int_{N^\complement} \liminf_{i \to \infty} f_i \ dm \notag
+              |                                                  |= M \app{m}{\mathrm{\Omega}} + \int_{N^\complement} \liminf_{i \to \infty} f \ dm \text!{（∵概収束のdefから${N^\complement}上で関数が一致）}\notag
+              |                                                  |= M \app{m}{\mathrm{\Omega}} + \int \liminf_{i \to \infty} f \ dm \label!(`lebesgues-bounded-convergence-theorem-3`)
+              |                                                  |\leq \liminf_{i \to \infty} \int \paren{M + f_i} \ dm \text!{（∵\ref-eq(`lebesgues-bounded-convergence-theorem-1`);）}\notag 
+              |                                                  |= \liminf_{i \to \infty} \paren{M \app{m}{\mathrm{M}} + \int f_i \ dm }\notag 
+              |                                                  |= M \app{m}{\mathrm{M}} + \liminf_{i \to \infty} \int f_i \ dm \label!(`lebesgues-bounded-convergence-theorem-4`)
+            |});
+            \ref-eq(`lebesgues-bounded-convergence-theorem-3`);，\ref-eq(`lebesgues-bounded-convergence-theorem-4`);の比較により，
+            ${f = \lim_{i \to \infty} f_i = \liminf_{i \to \infty} f_i}なので，
+            \eqn(${
+              \int f \ dm \leq \liminf_{i \to \infty} \int f_i \ dm \label!(`lebesgues-bounded-convergence-theorem-5`)
+            });
+            また，
+            \AZMathEquation.align(${
+              | \liminf_{i \to \infty} \paren{- \app{f_i}{\omega}} |= \lim_{i \to \infty} \inf_{i \leq k} \paren{ - \app{f_k}{\omega}} \notag
+              |                                                    |= \lim_{i \to \infty} \inf_{i \leq k} \paren{ - \app{f_k}{\omega}} \notag
+              |                                                    |= \lim_{i \to \infty} \paren{ - \sup_{i \leq k} \app{f_k}{\omega}} \notag
+              |                                                    |= - \limsup_{i \to \infty} \app{f_k}{\omega} \notag
+            |});
+            なので，同様に計算すると，
+            \AZMathEquation.align(${
+              | \int \liminf_{i \to \infty} \paren{M - f_i} \ dm |= \int M - \limsup_{i \to \infty} f_i \ dm \notag
+              |                                                  |= M \app{m}{\mathrm{\Omega}} - \int \limsup_{i \to \infty} f_i \ dm \notag
+              |                                                  |= M \app{m}{\mathrm{\Omega}} - \int_{N^\complement} \limsup_{i \to \infty} f_i \ dm \notag
+              |                                                  |= M \app{m}{\mathrm{\Omega}} - \int_{N^\complement} \limsup_{i \to \infty} f \ dm \text!{（∵概収束のdefから${N^\complement}上で関数が一致）}\notag
+              |                                                  |= M \app{m}{\mathrm{\Omega}} - \int \limsup_{i \to \infty} f \ dm \label!(`lebesgues-bounded-convergence-theorem-6`)
+              |                                                  |\leq \liminf_{i \to \infty} \int \paren{M - f_i} \ dm \text!{（∵\ref-eq(`lebesgues-bounded-convergence-theorem-2`);）}\notag 
+              |                                                  |= \liminf_{i \to \infty} \paren{M \app{m}{\mathrm{M}} - \int f_i \ dm }\notag 
+              |                                                  |= M \app{m}{\mathrm{M}} - \limsup_{i \to \infty} \int f_i \ dm \label!(`lebesgues-bounded-convergence-theorem-7`)
+            |});
+            \ref-eq(`lebesgues-bounded-convergence-theorem-6`);，\ref-eq(`lebesgues-bounded-convergence-theorem-7`);の比較により，
+            ${f = \lim_{i \to \infty} f_i = \limsup_{i \to \infty} f_i}なので，
+            \eqn(${
+              \int f \ dm \geq \limsup_{i \to \infty} \int f_i \ dm \label!(`lebesgues-bounded-convergence-theorem-8`)
+            });
+          }
+          +p{
+            一般に，${\liminf_{i \to \infty} f_i \leq \limsup_{i \to \infty} f_i}だが，\ref-eq(`lebesgues-bounded-convergence-theorem-5`);，\ref-eq(`lebesgues-bounded-convergence-theorem-8`);より，
+            \eqn(${
+              \limsup_{i \to \infty} \int f_i \ dm  \leq \int f \ dm \leq \liminf_{i \to \infty} \int f_i \ dm  \notag
+            });
+            なので極限が一致し，
+            \eqn(${
+               \int f \ dm = \lim_{i \to \infty} \int f_i \ dm \notag
+            });
+            となり， 所望の結果を得る．
+          }
+        >
+        +theorem?:({ルベーグの優収束定理})?:(`dominated-convergence-theorem`){
+          ${#measure-sp}を測度空間とする．
+          可測関数列${\family-array{f_i}_{i=1}^{\infty}}が可測関数${f}に概収束し，
+          可積分な可測関数${g}が存在して，${\abs{\app{f_i}{\omega}} \leq \app{g}{\omega}}がほとんどいたるところで成立すれば，
+          \eqn(${
+            \lim_{i \to \infty} \int f_i \ dm = \int f \ dm \notag
+          });
+        }
+        +proof<
+          +p{
+            \eqn(${
+              N \coloneq \set-intentional{\omega \in \mathrm{\Omega}}{\lim_{i \to \infty} \app{f_i}{\omega} \neq \app{f}{\omega}} \notag
+            });
+            とおくと，${f_i \to f \ a.e.}なので${\app{m}{N} = 0}，
+            \eqn(${
+              G \coloneq \set-intentional{\omega \in \mathrm{\Omega}}{\exists i \in \mathbb{N}, \abs{\app{f_i}{\omega}} > \app{g}{\omega}} \notag
+            });
+            とおくと， ほとんどいたるところで${\abs{f_i} \leq g}なので${\app{m}{G} = 0}．
+            よって，
+            \AZMathEquation.align(${
+              |\int_{N^\complement} f_n \ dm |= \int f_n \ dm \notag
+              |\int_{G^\complement} f_n \ dm |= \int f_n \ dm \notag
+              |\int_{N^\complement} f \ dm |= \int f \ dm \notag
+              |\int_{G^\complement} f \ dm |= \int f \ dm \notag
+            |});
+          }
+          +p{
+            lem \ref(`lem:Fatous-lemma`);より，
+            測度0である${G}以外でファトゥの補題の仮定を満たすので，
+            \AZMathEquation.align(${
+              | \int \liminf_{i \to \infty} \paren{g + f_i} \ dm |\leq \liminf_{i \to \infty} \int \paren{g + f_i} \ dm \label!(`dominated-convergence-theorem-1`)
+              | \int \liminf_{i \to \infty} \paren{g - f_i} \ dm |\leq \liminf_{i \to \infty} \int \paren{g - f_i} \ dm \label!(`dominated-convergence-theorem-2`)
+            |});
+            よって，
+            \AZMathEquation.align(${
+              | \int \liminf_{i \to \infty} \paren{g + f_i} \ dm |= \int g + \liminf_{i \to \infty} f_i \ dm \notag
+              |                                                  |= \int g \ dm + \int \liminf_{i \to \infty} f_i \ dm \notag
+              |                                                  |= \int g \ dm + \int_{N^\complement} \liminf_{i \to \infty} f_i \ dm \notag
+              |                                                  |= \int g \ dm + \int_{N^\complement} \liminf_{i \to \infty} f \ dm \text!{（∵概収束のdefから${N^\complement}上で関数が一致）}\notag
+              |                                                  |= \int g \ dm + \int \liminf_{i \to \infty} f \ dm \label!(`dominated-convergence-theorem-3`)
+              |                                                  |\leq \liminf_{i \to \infty} \int \paren{g + f_i} \ dm \text!{（∵\ref-eq(`dominated-convergence-theorem-1`);）}\notag 
+              |                                                  |= \liminf_{i \to \infty} \paren{\int g \ dm + \int f_i \ dm }\notag 
+              |                                                  |= \int g \ dm + \liminf_{i \to \infty} \int f_i \ dm \label!(`dominated-convergence-theorem-4`)
+            |});
+            \ref-eq(`dominated-convergence-theorem-3`);，\ref-eq(`dominated-convergence-theorem-4`);の比較により，
+            ${f = \lim_{i \to \infty} f_i = \liminf_{i \to \infty} f_i}であることと，${g}が可積分であることから${\int g \ dm < \infty}より，
+            \eqn(${
+              \int f \ dm \leq \liminf_{i \to \infty} \int f_i \ dm \label!(`dominated-convergence-theorem-5`)
+            });
+            \AZMathEquation.align(${
+              | \int \liminf_{i \to \infty} \paren{g - f_i} \ dm |= \int g - \limsup_{i \to \infty} f_i \ dm \notag
+              |                                                  |= \int g \ dm - \int \limsup_{i \to \infty} f_i \ dm \notag
+              |                                                  |= \int g \ dm - \int_{N^\complement} \limsup_{i \to \infty} f_i \ dm \notag
+              |                                                  |= \int g \ dm - \int_{N^\complement} \limsup_{i \to \infty} f \ dm \text!{（∵概収束のdefから${N^\complement}上で関数が一致）}\notag
+              |                                                  |= \int g \ dm - \int \limsup_{i \to \infty} f \ dm \label!(`dominated-convergence-theorem-6`)
+              |                                                  |\leq \liminf_{i \to \infty} \int \paren{g - f_i} \ dm \text!{（∵\ref-eq(`dominated-convergence-theorem-2`);）}\notag 
+              |                                                  |= \liminf_{i \to \infty} \paren{\int g \ dm - \int f_i \ dm }\notag 
+              |                                                  |= \int g \ dm - \limsup_{i \to \infty} \int f_i \ dm \label!(`dominated-convergence-theorem-7`)
+            |});
+            \ref-eq(`dominated-convergence-theorem-6`);，\ref-eq(`dominated-convergence-theorem-7`);の比較により，
+            ${f = \lim_{i \to \infty} f_i = \limsup_{i \to \infty} f_i}なので，
+            \eqn(${
+              \int f \ dm \geq \limsup_{i \to \infty} \int f_i \ dm \label!(`dominated-convergence-theorem-8`)
+            });
+          }
+          +p{
+            よって，
+            \eqn(${
+               \int f \ dm = \lim_{i \to \infty} \int f_i \ dm \notag
+            });
+            となり， 所望の結果を得る．
+          }
+        >
+        +lemma?:({マルコフ不等式})?:(`markovs-ineqality`){
+          ${#measure-sp}を測度空間，
+          ${f\colon-rel \mathrm{\Omega} \to \mathbb{R}^{+}}を非負値可測関数とする．
+          このとき以下が成り立つ．
+          \eqn(${
+            \forall a > 0, \app{m}{f^{-1}\closeclosebracket{a,\infty}} \leq \frac{\int f \ dm}{a} \notag
+          });
+        }
+        +proof<
+          +p{
+            任意の${a > 0}について，
+            \AZMathEquation.align(${
+              |\int f \ dm |\geq \int_{f^{-1}\closeclosebracket{a,\infty}} f \ dm \notag
+              |            |\geq \int_{f^{-1}\closeclosebracket{a,\infty}} a \cdot 1_{f^{-1}\closeclosebracket{a,\infty}} \ dm \notag
+              |            |= a \cdot \int_{f^{-1}\closeclosebracket{a,\infty}} 1_{f^{-1}\closeclosebracket{a,\infty}} \ dm \notag
+              |            |= a \cdot \app{m}{f^{-1}\closeclosebracket{a,\infty}} \notag
+            |});
+            より辺々${a}で割ることで示せた．
+          }
+        >
+        +corollary?*?*{
+          ${#measure-sp}を測度空間，
+          可測関数列${\family-array{f_i}_{i=1}^{\infty}}が単調増加，${\sup \set-intentional{\int\abs{f_i} \ dm }{i \in \mathbb{N}} < \infty}とする．
+          このとき，${\lim_{i \to \infty} \app{f_i}{\omega}}はほとんどいたるところで収束し，
+          \eqn(${
+            \lim_{i \to \infty} \int f_i \ dm = \int \lim_{i \to \infty} f_i \ dm \notag
+          });
+        }
+        +proof<
+          +p{
+            ${\family-array{f_i}_{i=1}^{\infty}}が単調増加なので，
+            \AZMathEquation.align(${
+              |\set-intentional{\omega \in \mathrm{\Omega}}{\lim_{i \to \infty} \app{f_i}{\omega} = \infty}
+                |= \bigcap_{k=1}^\infty \set-intentional{\omega \in \mathrm{\Omega}}{\lim_{i \to \infty} \app{f_i}{\omega} > k} \notag
+              | |= \bigcap_{k=1}^\infty \bigcup_{i=1}^{\infty} \set-intentional{\omega \in \mathrm{\Omega}}{\lim_{i \to \infty} \app{f_i}{\omega} > k} \notag
+            |});
+            で，${\set-intentional{\omega \in \mathrm{\Omega}}{\app{f_n}{\omega} >i}}が${i}に関して単調増加なので，その測度は，
+            \AZMathEquation.align(${
+              |\app{m}{\set-intentional{\omega \in \mathrm{\Omega}}{\lim_{i \to \infty} \app{f_i}{\omega} = \infty}}
+                |= \app{m}{\bigcap_{k=1}^\infty \bigcup_{i=1}^{\infty} \set-intentional{\omega \in \mathrm{\Omega}}{\lim_{i \to \infty} \app{f_i}{\omega} > k}} \notag
+              | |\leq \app{m}{\bigcup_{i=n}^{\infty} \set-intentional{\omega \in \mathrm{\Omega}}{\app{f_i}{\omega} > n}} \paren{\forall n \in \mathbb{N}} \notag
+              | |= \lim_{i \to \infty} \app{m}{\set-intentional{\omega \in \mathrm{\Omega}}{\app{f_i}{\omega} > n}} \text!{（∵thm \ref(`thm:measurable-set-properties`); (4)）} \notag
+              | |= \sup_{i \geq 1} \app{m}{\set-intentional{\omega \in \mathrm{\Omega}}{\app{f_i}{\omega} > n}} \text!{（∵${\lim \leq \sup}）} \notag
+              | |\leq \frac{\sup_{i \geq 1} \int \abs{f_i} \ dm}{n} \text!{（∵ lem \ref(`lem:markovs-ineqality`);）} \notag
+            |});
+            仮定より，${\sup \set-intentional{\int\abs{f_i} \ dm }{i \in \mathbb{N}} < \infty}で，
+            ${n}は任意にとっていいので，
+            \eqn(${
+              \app{m}{\set-intentional{\omega \in \mathrm{\Omega}}{\lim_{i \to \infty} \app{f_i}{\omega} = \infty}} = 0 \notag
+            });
+            一方，${f_i}の単調増加性から，${f_1}での${\brace{-\infty}}に対する逆像をみればいいが，
+            \eqn(${
+              \app{m}{\set-intentional{\omega \in \mathrm{\Omega}}{\lim_{i \to \infty} \app{f_i}{\omega} = -\infty}} > 0 \notag
+            });
+            とすれば， ${f_i}の可積分性に反するので測度は0である．
+          }
+          +p{
+            以上より，ほとんどいたるところで極限${\app{f}{\omega} \coloneq \lim_{i \to \infty} \app{f_i}{\omega}}が存在し，lem\ref(`measurable-function-charactors-2`);(4)より${f}は可測になる．
+            この${f}について，
+            \AZMathEquation.align(${
+              |\int \lim_{i \to \infty} \abs{f_i} \ dm |= \int \liminf_{i \to \infty} \abs{f_i} \ dm  \notag
+              |                                  |\leq \liminf_{i \to \infty} \int \abs{f_i} \ dm \text!{∵ lem \ref(`lem:Fatous-lemma`);} \notag
+              |                                  |\leq \sup \set-intentional{\int\abs{f_i} \ dm }{i \in \mathbb{N}} < \infty\notag
+            |});
+            なので可積分である．
+            ${\mathrm{\Omega_f} \coloneq \set-intentional{\omega \in \mathrm{\Omega}}{\lim_{i \to \infty} \abs{\app{f_i}{\omega}} < \infty}}
+            とおくと，可測関数の一点に対する逆像は可測なので，${\mathrm{\Omega_f} \in \mathfrak{B}}．
+            よって，thm \ref(`thm:dominated-convergence-theorem`); で${g = f}をとれば仮定を満たすので，
+            \eqn(${
+              \int f \ dm = \int_\mathrm{\Omega_f} f \ dm = \lim_{i \to \infty} \int_\mathrm{\Omega_f} f_i \ dm = \lim_{i \to \infty} \int f \ dm \notag
+            });
+          }
+        >
+      >
     >
     >
 
