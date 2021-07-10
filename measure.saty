@@ -949,8 +949,8 @@ document (|
           }
         }
         +proof<
-          +enumerate{
-            * ${f_i}に収束する非負単関数の単調増加列${\family-array{f_{i,j}}_{j=1}^{\infty}}に対して，
+          +p{
+          (1) ${f_i}に収束する非負単関数の単調増加列${\family-array{f_{i,j}}_{j=1}^{\infty}}に対して，
             \eqn(${
               g_j \coloneq \sum_{i=1}^{j} f_{i,j} \notag
             });
@@ -1012,7 +1012,9 @@ document (|
             \eqn(${
               \int f \ dm = \sum_{i=1}^\infty \int f_i \ dm \notag
             });
-            * ${f'_1 \coloneq f_1}，${f'_{k+1} \coloneq f_{k+1} - f_k }とおくと，
+          }
+          +p{
+            (2) ${f'_1 \coloneq f_1}，${f'_{k+1} \coloneq f_{k+1} - f_k }とおくと，
             ${\family-array{f'_i}_{i=1}^{\infty}}は非負値関数列になる．
             この${\family-array{f'_i}_{i=1}^{\infty}}について，
             ${f = \sum_{i=1}^{\infty} f'_i}とおくと，(1)より，
