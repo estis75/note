@@ -7,19 +7,20 @@
 let measureble-sp = ${\paren{\mathrm{\Omega}, \mathfrak{B}}} in
 let measure-sp = ${\paren{\mathrm{\Omega}, \mathfrak{B}, m}} in
 let-math \set-intentional object limit =
-  let rel = math-char MathRel in
+  let rel = math-char MathPunct in
   let-math \semicolon-rel = rel `;` in
-  ${\ \pb{\ #object \semicolon-rel #limit\ }\ } 
+  ${\math-skip!(1pt) \pb{\math-skip!(1pt) #object \semicolon-rel #limit\math-skip!(1pt)}\math-skip!(1pt)} 
 in
 let-math \family-array object =
-  ${\ \pb{\ #object \ }\ } 
+  ${\math-skip!(1pt) \pb{\math-skip!(1pt)#object\math-skip!(1pt)}\math-skip!(1pt)} 
 in
+let-math \outer-measure m = ${#m^*} in
 document (|
   title = {解析学セミナー\: ルベーグ積分超入門};
   univ = {京都工芸繊維大学 工芸科学部 設計工学域 情報工学課程};
   number = {B4};
   author = {estis_jk};
-  date = {2021/07/11};
+  date = {2021/07/17};
   show-toc = true;
 |) '<
 
@@ -1316,7 +1317,7 @@ document (|
             とすれば， ${f_i}の可積分性に反するので測度は0である．
           }
           +p{
-            以上より，ほとんどいたるところで極限${\app{f}{\omega} \coloneq \lim_{i \to \infty} \app{f_i}{\omega}}が存在し，lem\ref(`measurable-function-charactors-2`);(4)より${f}は可測になる．
+            以上より，ほとんどいたるところで極限${\app{f}{\omega} \coloneq \lim_{i \to \infty} \app{f_i}{\omega}}が存在し，lem\ref(`lem:measurable-function-charactors-2`);(4)より${f}は可測になる．
             この${f}について，
             \AZMathEquation.align(${
               |\int \lim_{i \to \infty} \abs{f_i} \ dm |= \int \liminf_{i \to \infty} \abs{f_i} \ dm  \notag
@@ -1335,8 +1336,392 @@ document (|
       >
     >
     >
-
   >
+
+  +chapter{測度の構成} <
+    +section{準備} <
+      +definition?:({Algebra})?:(`algebra`){
+        集合${\mathrm{\Omega}}上の集合族${\mathcal{A}}が以下を満たすとき，${\mathcal{A}}を代数(Algebra, alg.)という．
+        \enumerate{
+          * ${\emptyset \in \mathcal{A}}
+          * ${A \in \mathcal{A} \Rightarrow A^\complement \in  \mathcal{A}}
+          * ${A, B \in \mathcal{A} \Rightarrow A \cup B \in \mathcal{A}}
+        }
+      }
+      +definition?:({有限加法的測度})?:(`finitely-additive-measure`){
+        alg. ${\mathcal{A}}上の集合関数 ${m\colon-rel \mathcal{A} \to \mathbb{R}^+}が以下を満たすとき，${m}を有限加法的測度という．
+        \enumerate{
+          * ${\forall A \in \mathcal{A}, \app{m}{A} \geq 0 \land \app{m}{\emptyset} = 0}
+          * ${\paren{A, B \in \mathcal{A} \land A \cap B = \emptyset } \Rightarrow \app{m}{A \cup B} = \app{m}{A} + \app{m}{B}}
+        }
+      }
+      +definition?:({外測度})?:(`outer-measure`){
+        集合関数${\outer-measure{m} \colon-rel 2^{\mathrm{\Omega}} \to \mathbb{R}^+}が以下を満たすとき，${\outer-measure{m}}を外測度という．
+        \enumerate{
+          * ${\app{\outer-measure{m}}{\emptyset} = 0}
+          * ${A \subset B \subset \mathrm{\Omega} \Rightarrow \app{\outer-measure{m}}{A} \leq \app{\outer-measure{m}}{B}}
+          * ${A_i \subset \mathrm{\Omega} \paren{i \in \mathbb{N}} \Rightarrow \app{\outer-measure{m}}{\bigcup_{i \in \mathbb{N}} A_i} \leq \sum_{i \in \mathbb{N}}\app{\outer-measure{m}}{ A_i}}
+        }
+      }
+      +definition?:({可測集合})?:(`measurable-set-of-outer-measure`){
+        外測度${\outer-measure{m}}が${\mathrm{\Omega}}上に定義されているとき，
+        \eqn(${
+          \forall E \subset \mathrm{\Omega}, \app{\outer-measure{m}}{E} = \app{\outer-measure{m}}{A \cap E} + \app{\outer-measure{m}}{A^\complement \cap E} \label!(`measurable-set-of-outer-measure-1`)
+        });
+        を満たす集合${A \subset \mathrm{\Omega}}を可測集合（または端的に可測）とよび，その集合全体を${\mathfrak{B}_{\outer-measure{m}}}とかく．
+      }
+      +p{
+        以下の文脈ではdef\ref(`def:measurable-space`);での可測集合ではないことに注意する．
+      }
+      +lemma?*?:(`measurable-set-of-outer-measure-requrements`) {
+        外測度${\outer-measure{m}}に対して，${A \subset \mathrm{\Omega}}が以下を満たせば${A}は可測集合である．
+        \eqn(${
+          \forall E \subset \mathrm{\Omega}, \app{\outer-measure{m}}{E} \geq \app{\outer-measure{m}}{A \cap E} + \app{\outer-measure{m}}{A^\complement \cap E} \label!(`measurable-set-of-outer-measure-requrements-1`)
+        });
+      }
+      +proof<
+        +p{
+          def\ref(`def:outer-measure`);(3)より，
+          \eqn(${
+            \app{\outer-measure{m}}{E} \leq \app{\outer-measure{m}}{A \cap E} + \app{\outer-measure{m}}{A^\complement \cap E} \notag
+          });
+          なので，式\ref-eq(`measurable-set-of-outer-measure-requrements-1`); を満たせば，
+          式\ref-eq(`measurable-set-of-outer-measure-1`);をみたす．
+        }
+      >
+      +section{本題} <
+        +proposition?*?:(`outer-measure-from-finitely-additive-measure`){
+          ${\mathcal{A}}を${\mathrm{\Omega}}上のalg.，
+          ${m}を${\mathcal{A}}上の有限加法的測度とする．
+          集合関数${\outer-measure{m} \colon-rel 2^{\mathrm{\Omega}} \to \mathbb{R}^+}を，任意の${B \subset \mathrm{\Omega}}に対して
+          \eqn(${
+            \app{\outer-measure{m}}{B} \coloneq \inf_{A_i \in \mathcal{A}, B \subset \bigcup_{i \in \mathbb{N}} A_i} \sum_{i \in \mathbb{N}} \app{m}{A_i} \notag
+          });
+          で与えると，この${\outer-measure{m}}は外測度となる．
+        }
+        +proof<
+          +p{def\ref(`def:outer-measure`);のそれぞれを確認すればよい．}
+          +p{
+            (1) 
+            定義より${\forall B \subset \mathrm{\Omega}, \app{\outer-measure{m}}{B} \geq 0}．
+            ${\emptyset}は${\emptyset}を被覆し，その有限加法的測度は下限の${0}を取るので，
+            \eqn(${
+              \app{\outer-measure{m}}{\emptyset} \leq \app{m}{\emptyset} = 0 \notag
+            });
+            よって，${\app{\outer-measure{m}}{\emptyset} = 0}
+          }
+          +p{
+            (2) ${A \subset B}とする．
+            ${B}を被覆するどのような高々加算個の${\mathcal{A}}の族${\family-array{B_i}}についても${A}の被覆となっているので，
+            \AZMathEquation.align(${
+              | \app{\outer-measure{m}}{B} |= \inf_{B_i \in \mathcal{A}, B \subset \bigcup_{i \in \mathbb{N}} B_i} \sum_{i \in \mathbb{N}} \app{m}{B_i} \notag
+              |                            |\geq \inf_{A_i \in \mathcal{A}, A \subset \bigcup_{i \in \mathbb{N}} A_i} \sum_{i \in \mathbb{N}} \app{m}{A_i} \notag
+              |                            |=\app{\outer-measure{m}}{A} \notag
+            |});
+          }
+          +p{
+            (3) 
+            それぞれの${A_i \subset \mathrm{\Omega}}について， ${\inf}の定義より，
+            どのような${\epsilon > 0}に対しても，
+            \eqn(${
+              \app{\outer-measure{m}}{A_i} \geq \sum_{j \in \mathbb{N}} \app{m}{A'_{i,j}} - \frac{\epsilon }{2^{i}} \notag
+            });
+            をみたすようにそれぞれの${A_i}に対する被覆${\family-array{A'_{i,j}} \subset \mathcal{A}}がとれる．
+            また，それぞれの${A_i}を被覆する集合族${\family-array{A_{i,j}}}は${\bigcup_{i \in \mathbb{N}} A_i \subset \bigcup_{i,j \in \mathbb{N}}A'_{i,j}}
+            なので，
+            \AZMathEquation.align(${
+              | \sum_{i \in \mathbb{N}} \app{\outer-measure{m}}{A_i} |\geq \sum_{i \in \mathbb{N}} \paren{\sum_{j \in \mathbb{N}} \app{m}{A'_{i,j}} - \frac{\epsilon }{2^{i}}} \notag
+              |                                                      |= \sum_{i \in \mathbb{N}} \sum_{j \in \mathbb{N}} \app{m}{A'_{i,j}} - \epsilon \notag
+              |                                                      |\geq \inf_{A'_k \in \mathcal{A}, \bigcup_{i \in \mathbb{N}} A_i \subset \bigcup_{k \in \mathbb{N}} A'_k} \sum_{k \in \mathbb{N}} \app{m}{A'_k} - \epsilon \notag 
+              |                                                      |=\app{\outer-measure{m}}{\bigcup_{i \in \mathbb{N}} A_i}  - \epsilon \notag
+            |});
+            以上より，${\epsilon}は任意にとってよかったので，
+            \eqn(${
+              \sum_{i \in \mathbb{N}} \app{\outer-measure{m}}{A_i} \geq \app{\outer-measure{m}}{\bigcup_{i \in \mathbb{N}} A_i} \notag
+            });
+            を得る．
+          }
+          +p{
+            よって示せた．
+          }
+        >
+        +theorem?*?:(`measure-from-outer-measure`){
+          def\ref(`def:measurable-set-of-outer-measure`);で定めた${\mathfrak{B}_{\outer-measure{m}}}は${\sigma}代数となる．
+          また，外測度${\outer-measure{m}}を${\mathfrak{B}_{\outer-measure{m}}}上に制限したものを${m}で表すと，
+          ${\paren{\mathrm{\Omega}, \mathfrak{B}_{\outer-measure{m}}, m}}は測度空間になる．
+        }
+        +proof<
+          +p{（${\mathfrak{B}_{\outer-measure{m}}}が${\sigma}代数となること）}
+          +p{
+            def\ref(`def:measurable-space`);を満たすことを確認すればよい．
+          }
+          +p{
+            (1) 
+            ${\forall E \subset \mathrm{\Omega}, \emptyset \cap E = \emptyset, \emptyset^\complement \cap E = E}
+            なので，
+            \AZMathEquation.align(${
+              | \app{\outer-measure{m}}{\emptyset \cap E} + \app{\outer-measure{m}}{\emptyset^\complement \cap E} | = \app{\outer-measure{m}}{\emptyset} + \app{\outer-measure{m}}{E} \notag
+              |                                                                                                   | = 0 + \app{\outer-measure{m}}{E} \notag
+              |                                                                                                   | = \app{\outer-measure{m}}{E} \notag
+            |});
+            より，${\emptyset \in \mathfrak{B}_{\outer-measure{m}}}．
+          }
+          +p{
+            (2)
+            ${A \in \mathfrak{B}_{\outer-measure{m}}}について，
+            \eqn(${
+              \forall E \subset \mathrm{\Omega}, \app{\outer-measure{m}}{E} = \app{\outer-measure{m}}{A \cap E} + \app{\outer-measure{m}}{A^\complement \cap E}  \notag
+            });
+            を満たすが，この${A}と${A^\complement}を読み替えれば，
+            ${A^\complement \in \mathfrak{B}_{\outer-measure{m}}}．
+          }
+          +p{
+            (3)
+            互いに素であるような${\mathfrak{B}_{\outer-measure{m}}}の族${\family-array{A_i}}について，
+            \eqn(${
+              \forall E \subset \mathrm{\Omega}, \app{\outer-measure{m}}{E} = \app{\outer-measure{m}}{\paren{\bigcup_{i \in \mathbb{N}} A_i} \cap E} + \app{\outer-measure{m}}{\paren{\bigcup_{i \in \mathbb{N}} A_i}^\complement \cap E}  \notag
+            });
+            を示せば良い．
+            まず，有限個の和の場合を確認し，その後，加算無限個の和について示す．
+          }
+          +p{
+            ${A, B \in \mathfrak{B}_{\outer-measure{m}}}について，任意の${E \subset \mathrm{\Omega}}で，
+            \AZMathEquation.align(${
+              | \app{\outer-measure{m}}{\paren{A \cup B} \cap E} + \app{\outer-measure{m}}{\paren{A \cup B} ^ \complement \cap E} \notag
+                | = \app{\outer-measure{m}}{\paren{A \cap E} \cup \paren{A^\complement \cap B \cap E}} + \app{\outer-measure{m}}{A^ \complement \cap B ^ \complement \cap E} \notag
+              | | \leq \app{\outer-measure{m}}{A \cap E} + \app{\outer-measure{m}}{A^\complement \cap B \cap E} + \app{\outer-measure{m}}{A^ \complement \cap B ^ \complement \cap E} \text!{（∵def\ref(`def:outer-measure`);）} \notag
+              | | \leq \app{\outer-measure{m}}{A \cap E} + \app{\outer-measure{m}}{A^\complement \cap E} \text!{（∵Bの可測性）}\notag
+              | | \leq \app{\outer-measure{m}}{E} \text!{（∵Aの可測性）}\notag
+            |});
+            よって，lem\ref(`lem:measurable-set-of-outer-measure-requrements`);より${A \cup B \in \mathfrak{B}_{\outer-measure{m}}}で，有限個の和について閉じていることが示せた．
+          }
+          +p{
+            また，互いに素な${A, B \subset \mathrm{\Omega}}について，
+            ${A \cup B \subset \mathrm{\Omega}}について， ${\inf}の定義より，
+            どのような${\epsilon > 0}に対しても，
+            \eqn(${
+              \app{\outer-measure{m}}{A \cup B} \geq \sum_{j \in \mathbb{N}} \app{m}{A_{i,j}} - \epsilon \notag
+            });
+            をみたすようにそれぞれの${A \cup B}に対する被覆${\family-array{A_{i,j}} \subset \mathcal{A}}がとれる．
+            よって，そのような被覆に対して，${\family-array{A_{i,j} \cap A}}が${A}の，${\family-array{A_{i,j} \cap B}}が${B}の被覆になっていることに注意すると，
+            \AZMathEquation.align(${
+              | \app{\outer-measure{m}}{A \cup B} | \geq \sum_{j \in \mathbb{N}} \app{m}{A_{i,j}} - \epsilon \notag
+              |                                   | = \sum_{j \in \mathbb{N}} \app{m}{\paren{A_{i,j} \cap A} \cup \paren{A_{i,j} \cap B} \cup \paren{A_{i,j} - \paren{A \cup B}}}  - \epsilon \notag
+              |                                   | = \sum_{j \in \mathbb{N}} \paren{\app{m}{A_{i,j} \cap A} + \app{m}{A_{i,j} \cap B} + \app{m}{A_{i,j} - \paren{A \cup B}}}  - \epsilon \text!{（∵def\ref(`def:finitely-additive-measure`);(2)）}\notag
+              |                                   | \geq \sum_{j \in \mathbb{N}} \paren{\app{m}{A_{i,j} \cap A} + \app{m}{A_{i,j} \cap B}}  - \epsilon \text!{（∵def\ref(`def:finitely-additive-measure`);(1)）}\notag
+              |                                   | = \sum_{j \in \mathbb{N}} \app{m}{A_{i,j} \cap A} + \sum_{j \in \mathbb{N}}\app{m}{A_{i,j} \cap B}  - \epsilon \notag
+              |                                   | \geq \inf_{A'_i \in \mathcal{A}, A \subset \bigcup_{i \in \mathbb{N}} A'_i} \sum_{i \in \mathbb{N}} \app{m}{A'_i} + \inf_{B'_i \in \mathcal{A}, B \subset \bigcup_{i \in \mathbb{N}} B'_i} \sum_{i \in \mathbb{N}} \app{m}{B'_i}  - \epsilon \notag
+              |                                   | = \app{\outer-measure{m}}{A} + \app{\outer-measure{m}}{B}  - \epsilon \notag
+            |});
+            以上より，${\epsilon}は任意にとってよかったので，def\ref(`def:outer-measure`);(3)と合わせて，
+            \eqn(${
+              \app{\outer-measure{m}}{A \cup B} = \app{\outer-measure{m}}{A} + \app{\outer-measure{m}}{B}  \notag
+            });
+            を得る．
+          }
+          +p{
+            加算無限個の和について確認する．
+            互いに素であるような${\mathfrak{B}_{\outer-measure{m}}}の族${\family-array{A_i}}について，任意の${n \in \mathbb{N}}，${E \subset \mathrm{\Omega}}について，
+            \AZMathEquation.align(${
+              | \app{\outer-measure{m}}{E} | = \app{\outer-measure{m}}{\paren{\bigcup_{i = 1}^n A_i} \cap E} + \app{\outer-measure{m}}{\paren{\bigcup_{i = 1}^n A_i}^\complement \cap E} \notag
+              |                            | \geq \app{\outer-measure{m}}{\paren{\bigcup_{i = 1}^n A_i} \cap E} + \app{\outer-measure{m}}{\paren{\bigcup_{i = 1}^\infty A_i}^\complement \cap E} \ \paren{\text!{∵def\ref(`def:outer-measure`);(2)， ${\paren{\bigcup_{i = 1}^n A_i}^\complement \supset \paren{\bigcup_{i = 1}^\infty A_i}^\complement}}}\notag
+              |                            | = \sum_{i = 1}^n \app{\outer-measure{m}}{A_i \cap E} + \app{\outer-measure{m}}{\paren{\bigcup_{i = 1}^\infty A_i}^\complement \cap E} \notag
+            |});
+            より，${n \to \infty}にすると．
+            \AZMathEquation.align(${
+              | \app{\outer-measure{m}}{E} | \geq \sum_{i = 1}^\infty \app{\outer-measure{m}}{A_i \cap E} + \app{\outer-measure{m}}{\paren{\bigcup_{i = 1}^\infty A_i}^\complement \cap E} \label!(`measure-from-outer-measure-1`)
+              |                            | \geq \app{\outer-measure{m}}{\bigcup_{i = 1}^\infty A_i \cap E} + \app{\outer-measure{m}}{\paren{\bigcup_{i = 1}^\infty A_i}^\complement \cap E} \text!{（∵def\ref(`def:outer-measure`); (3)）}\notag
+            |});
+            以上より，lem\ref(`lem:measurable-set-of-outer-measure-requrements`);の仮定をみたしているので，
+            ${\bigcup_{i \in \mathbb{N}} A_i \in \mathfrak{B}_{\outer-measure{m}}}
+          }
+
+          +p{
+            （${m}が測度になること）
+          }
+          +p{
+            (1)
+            \eqn(${
+              \app{m}{\emptyset} = \app{\outer-measure{m}}{\emptyset} = 0 \notag
+            });
+            \eqn(${
+              \forall A \in \mathfrak{B}_{\outer-measure{m}}, \app{m}{A} = \app{\outer-measure{m}}{A} \geq \app{\outer-measure{m}}{\emptyset} = 0 \notag
+            });
+          }
+          +p{ (2) }
+          +p{
+            式 \ref-eq(`measure-from-outer-measure-1`);について，${E = \bigcup_{i \in \mathbb{N}} A_i}を与えると，
+            不等式
+            \eqn(${
+              \app{\outer-measure{m}}{\bigcup_{i \in \mathbb{N}} A_i} \geq \sum_{i = 1}^\infty \app{\outer-measure{m}}{A_i} \notag
+            });
+            を得る．def\ref(`def:outer-measure`);(3)の不等式と合わせて，
+            \eqn(${
+              \app{m}{\bigcup_{i \in \mathbb{N}} A_i} = \app{\outer-measure{m}}{\bigcup_{i \in \mathbb{N}} A_i} = \sum_{i = 1}^\infty \app{\outer-measure{m}}{A_i} = \sum_{i = 1}^\infty \app{m}{A_i}\notag 
+            });
+          }
+          +p{
+            よって，${\mathfrak{B}_{\outer-measure{m}}}が${\sigma}代数で，${m}が測度であることが示せた．
+          }
+        >
+
+        +proposition?*?*{
+          ${\mathrm{\Omega}}の部分集合の族${\mathcal{A}}に対して，${\mathcal{A}}を含む最小の${\sigma}代数が存在する．
+          ここでいう最小の${\sigma}代数とは，${\mathcal{A}}を含む任意の${\sigma}代数がそれを含むという意味で最小である．
+        }
+        +proof<
+          +p{
+            ${\mathcal{A}}を含む${\sigma}代数全体を${\mathcal{F}}とおく．
+            明らかに，${2^\mathrm{\Omega} \in \mathcal{F}}なので，${\mathcal{F} \neq \emptyset}．
+            ${\mathcal{B} \coloneq \bigcap_{\mathcal{C} \in \mathcal{F}} \mathcal{C}}とおくと，
+            この${\mathcal{B}}は${\mathcal{A}}を含む．また，
+          }
+          +p{
+            (1) ${\mathcal{C} \in \mathcal{F}}について，${\mathcal{C}}は${\sigma}代数なので${\emptyset \in \mathcal{C}}．
+            なので，${\emptyset \in \mathcal{B}}
+          }
+          +p{
+            (2) ${B \in \mathcal{B}}について，
+            ${\mathcal{C} \in \mathcal{F}}が${\sigma}代数なので，${B \in \mathcal{C} \Rightarrow B^\complement \in \mathcal{C}}．
+            どの${\mathcal{C}}についても成り立つので，${B^\complement \in \mathcal{B}}
+          }
+          +p{
+            (3) ${\family-array{B_i} \subset \mathcal{B}}について，
+            ${\mathcal{C} \in \mathcal{F}}が${\sigma}代数なので，${\family-array{B_i} \subset \mathcal{C} \Rightarrow \bigcup_{i \in \mathbb{N}} B_i \in \mathcal{C}}．
+            どの${\mathcal{C}}についても成り立つので，${\bigcup_{i \in \mathbb{N}} B_i \in \mathcal{B}}
+          }
+          +p{
+            よって，${\mathcal{B}}は${\mathcal{A}}を含むような最小の${\sigma}代数である．
+          }
+        >
+        +p{
+          上の命題の元で次の定義ができる．
+        }
+        +definition?*?:(`sigmize`){
+          ${\mathrm{\Omega}}の部分集合の族${\mathcal{A}}を含む最小の${\sigma}代数を${\app{\sigma}{\mathcal{A}}}とかき，
+          ${\mathcal{A}}の生成する${\sigma}代数という．
+        }
+
+        +theorem?:({Hopfの拡張定理})?*{
+          alg. ${\mathcal{A}}上に有限加法的測度${m}が存在するとき，
+          \enumerate{
+            * ${m}を${\app{\sigma}{\mathcal{A}}}上の測度に拡張できる必要十分条件は，
+            任意の互いに素な${\family-array{A_i} \subset \mathcal{A}}について，
+            \eqn(${
+              \app{m}{\bigcup_{i \in \mathbb{N}} A_i} = \sum_{i \in \mathbb{N}} \app{m}{A_i} 
+            });
+            を満たすことである．（${\mathcal{A}}上だけ（${\neq \app{\sigma}{\mathcal{A}}}）の振る舞いを見れば十分）
+            * さらに，${\family-array{\mathrm{\Omega}_i} \subset \mathcal{A}}で，${\mathrm{\Omega} = \bigcup_{i \in \mathbb{N}} \mathrm{\Omega}_i}
+            かつ，${\app{m}{\mathrm{\Omega}_i} < \infty}をみたすものがあれば，その拡張は一意的である．
+          }
+        }
+        +proof<
+          +p{ (1) }
+          +p{
+            必要性は定義から明らか．
+          }
+          +p{
+            条件の元で一つでも拡張できる物があることを示せばよい．
+            prop\ref(`prop:outer-measure-from-finitely-additive-measure`);による外測度${\outer-measure{m}}を${\mathfrak{B}_{\outer-measure{m}}}に制限したものをそのまま${\outer-measure{m}}とかくと，
+            thm\ref(`thm:measure-from-outer-measure`);より，${\paren{\mathrm{\Omega}, \mathfrak{B}_{\outer-measure{m}}, \outer-measure{m}}}は測度空間になる．
+            ${\mathfrak{B}_{\outer-measure{m}}}は${\mathcal{A}}を含むような${\sigma}代数なので，${\app{\sigma}{\mathcal{A}}}を含む．
+            よって，${\outer-measure{m}}を${\app{\sigma}{\mathcal{A}}}に制限したものをそのまま${\outer-measure{m}}とかくと，この${\outer-measure{m}}は測度である．
+          }
+          +p{
+            ${A \in \mathcal{A}}について，
+            どのような${\epsilon > 0}に対しても，
+            \eqn(${
+              \app{\outer-measure{m}}{A} \geq \sum_{i \in \mathbb{N}} \app{m}{A_{i}} - \epsilon  \notag 
+            });
+            をみたすような${A}に対する被覆${\family-array{A_{i}} \subset \mathcal{A}}がとれる．
+            この族に対して，
+            \eqn(${
+              B_1 \coloneq A_1 \cap A, B_i \coloneq \paren{A_i \cap A} - \bigcup_{j = 1}^{i-1} B_j \math-skip!(2pt)\paren{i \in \mathbb{N}} \notag
+            });
+            で族${\family-array{B_i}}を与えると，この族の元は互いに素でかつ${B_i \in \mathcal{A}}，${B_i \subset A_i}，${\bigcup_{i = 1}^n B_i = \paren{\bigcup_{i = 1}^n A_i} \cap A}．
+            任意の${n \in \mathbb{N}}に対して，
+            \AZMathEquation.align(${
+              |\app{\outer-measure{m}}{A} |\geq \sum_{i = 1}^{\infty} \app{m}{A_{i}} - \epsilon  \notag 
+              |                           |\geq \sum_{i = 1}^{n} \app{m}{A_{i}} - \epsilon  \notag 
+              |                           |\geq \sum_{i = 1}^{n} \app{m}{B_{i}} - \epsilon  \math-skip!(2pt) \text!{（∵${A_i \supset B_i}）}\notag 
+              |                           |\geq \app{m}{\bigcup_{i = 1} ^ {n} B_{i}} - \epsilon  \math-skip!(2pt) \text!{（∵def\ref(`def:finitely-additive-measure`);）}\notag 
+            |});
+            なので ${n \to \infty}で，
+            \eqn(${
+              \app{\outer-measure{m}}{A} \geq \app{m}{\bigcup_{i = 1} ^ {\infty} B_{i}} - \epsilon = \app{m}{A} - \epsilon \notag
+            });
+            ${\epsilon}は任意に取ってよかったので，
+            \eqn(${
+              \app{\outer-measure{m}}{A} \geq \app{m}{A}\notag
+            });
+            を得る．
+            他方，${A}は${A}を被覆するので，def\ref(`def:outer-measure`);より，
+            \eqn(${
+              \app{\outer-measure{m}}{A} \leq \app{m}{A}\notag
+            });
+            以上から，
+            \eqn(${
+              \app{\outer-measure{m}}{A} = \app{m}{A}\notag
+            });
+            を得る．　
+            よって，${\outer-measure{m}}が${m}を${\app{\sigma}{\mathcal{A}}}上に拡張したもののひとつになっていることを示せた．
+          }
+
+          +p{ (2) }
+          +p{
+            ${\outer-measure{m}}を${\app{\sigma}{\mathcal{A}}}に制限したものの他に，${m}を拡張するような測度${m'}があるとする．
+            ${A \in \app{\sigma}{\mathcal{A}}}について，
+            どのような${\epsilon > 0}に対しても，
+            \eqn(${
+              \app{\outer-measure{m}}{A} \geq \sum_{i \in \mathbb{N}} \app{m}{A_{i}} - \epsilon  \notag 
+            });
+            をみたすような${A}に対する被覆${\family-array{A_{i}} \subset \mathcal{A}}がとれる．
+            この${A, \family-array{A_{i}}}について，
+            \AZMathEquation.align(${
+              |\app{m'}{A} | \leq \app{m'}{\bigcup_{i \in \mathbb{N}} A_i} \math-skip!(2pt) \text!{（∵${m'}の${\sigma}加法性）} \notag
+              |            | = \sum_{i \in \mathbb{N}} \app{m'}{A_i} \math-skip!(2pt) \text!{（∵${\family-array{A_i}}は${A}を被覆）} \notag
+              |            | = \sum_{i \in \mathbb{N}} \app{m}{A_i} \math-skip!(2pt) \text!{（∵${m'}は${m}の拡張なので${\mathcal{A}}上で一致）} \notag
+              |            | \leq \app{\outer-measure{m}}{A} + \epsilon  \notag
+            |});
+            ${\epsilon}は任意にとっていいので，
+            \eqn(${
+              \app{m'}{A} \leq \app{\outer-measure{m}}{A} \notag
+            });
+          }
+          +p{
+            仮定より，${\mathrm{\Omega}_i\in \mathcal{A}}，${\app{m}{\mathrm{\Omega}_i} < \infty}．
+            \eqn(${
+              \app{m'}{A} \leq \app{\outer-measure{m}}{A}, \app{m'}{\mathrm{\Omega}_i \cap A^\complement} \leq \app{\outer-measure{m}}{\mathrm{\Omega}_i \cap A^\complement} \notag
+            });
+            なので，ある${i}について${A \subset \Omega_i}のとき，
+            \AZMathEquation.align(${
+              | \app{m'}{\mathrm{\Omega}_i \cap A^\complement} |= \app{m'}{\mathrm{\Omega}_i} - \app{m'}{A} \notag
+              |                                                |= \app{m}{\mathrm{\Omega}_i} - \app{m'}{A} \notag
+              |                                                |\geq \app{\outer-measure{m}}{\mathrm{\Omega}_i} - \app{m'}{A} \math-skip!(2pt) \text!{（∵prop\ref(`prop:outer-measure-from-finitely-additive-measure`);）}\notag
+              |                                                |\geq \app{\outer-measure{m}}{\mathrm{\Omega}_i} - \app{\outer-measure{m}}{A} \notag
+              |                                                |= \app{\outer-measure{m}}{\mathrm{\Omega}_i \cap A^\complement} \notag
+            |});
+            以上より，${\app{m'}{\mathrm{\Omega}_i \cap A^\complement} = \app{\outer-measure{m}}{\mathrm{\Omega}_i \cap A^\complement}}，
+            なので，
+            \eqn(${
+              \app{m'}{A} = \app{\outer-measure{m}}{A} \notag
+            });
+          }
+          +p{
+            一般に，${A \in \app{\sigma}{\mathcal{A}}}について，
+            ${A = \bigcup_{i \in \mathbb{N}} \paren{\mathrm{\Omega}_i \cap A}}と分解できるので，
+            \AZMathEquation.align(${
+              | \app{m'}{A} |= \sum_{i \in \mathbb{N}} \app{m'}{\mathrm{\Omega}_i \cap A} \math-skip!(2pt) \text!{（∵${\sigma}加法性）} \notag
+              |             |= \sum_{i \in \mathbb{N}} \app{\outer-measure{m}}{\mathrm{\Omega}_i \cap A} \notag
+              |             |= \app{\outer-measure{m}}{A} \math-skip!(2pt) \text!{（∵${\sigma}加法性）} \notag
+            |});
+            なので，${\app{\sigma}{\mathcal{A}}}上で${m' = \outer-measure{m}}となり，示せた．
+          }
+        >
+      >
+    >
+  >
+
   +chapter{確認事項}<
     +section{well-definedness}<
       +subsection{${\sup, \inf}} <
