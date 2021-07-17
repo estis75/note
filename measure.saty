@@ -20,7 +20,7 @@ document (|
   univ = {京都工芸繊維大学 工芸科学部 設計工学域 情報工学課程};
   number = {B4};
   author = {estis_jk};
-  date = {2021/07/17};
+  date = {2021/07/18};
   show-toc = true;
 |) '<
 
@@ -1602,7 +1602,7 @@ document (|
           ${\mathcal{A}}の生成する${\sigma}代数という．
         }
 
-        +theorem?:({Hopfの拡張定理})?*{
+        +theorem?:({Hopfの拡張定理})?:(`hopfs-extention-theorem`){
           alg. ${\mathcal{A}}上に有限加法的測度${m}が存在するとき，
           \enumerate{
             * ${m}を${\app{\sigma}{\mathcal{A}}}上の測度に拡張できる必要十分条件は，
@@ -1718,6 +1718,131 @@ document (|
             なので，${\app{\sigma}{\mathcal{A}}}上で${m' = \outer-measure{m}}となり，示せた．
           }
         >
+      >
+    >
+    +section{具体例} <
+      +subsection{${\mathbb{R}}} <
+        +p{ (1) alg.と有限加法的測度を構成する}
+        +p{
+          \eqn(${
+            \mathcal{A}_{\openopenbracket{}} \coloneq \set-intentional{\bigcup_{i=1}^{\infty} \openopenbracket{a_i, b_i}}{n \in \mathbb{N}, a_1 \leq b_1 \leq a_2 \leq \cdots , a_i, b_i \in \mathbb{R}} \notag
+          });
+          \eqn(${
+            \mathcal{A}_{\openclosebracket{}} \coloneq \set-intentional{\bigcup_{i=1}^{\infty} \openclosebracket{a_i, b_i}}{n \in \mathbb{N}, a_1 \leq b_1 \leq a_2 \leq \cdots , a_i, b_i \in \mathbb{R}} \notag
+          });
+          \eqn(${
+            \mathcal{A}_{\closeopenbracket{}} \coloneq \set-intentional{\bigcup_{i=1}^{\infty} \closeopenbracket{a_i, b_i}}{n \in \mathbb{N}, a_1 \leq b_1 \leq a_2 \leq \cdots , a_i, b_i \in \mathbb{R}} \notag
+          });
+          \eqn(${
+            \mathcal{A}_{\closeclosebracket{}} \coloneq \set-intentional{\bigcup_{i=1}^{\infty} \closeclosebracket{a_i, b_i}}{n \in \mathbb{N}, a_1 \leq b_1 \leq a_2 \leq \cdots , a_i, b_i \in \mathbb{R}} \notag
+          });
+          \eqn(${
+            \mathcal{A} \coloneq \mathcal{A}_{\openopenbracket{}} \cup \mathcal{A}_{\openclosebracket{}} \cup \mathcal{A}_{\closeopenbracket{}} \cup \mathcal{A}_{\closeclosebracket{}} \notag
+          });
+          で定義される集合族${\mathcal{A}}に対して，集合関数${m\colon-rel \mathcal{A} \to \mathbb{R}}を，
+          \eqn(${
+            \mathcal{A} \ni A = 
+              \bigcup_{i=1}^{\infty} \openopenbracket{a_{\openopenbracket{},i}, b_{\openopenbracket{}, i}}
+              \cup \bigcup_{i=1}^{\infty} \openclosebracket{a_{\openclosebracket{},i}, b_{\openclosebracket{},i}}
+              \cup \bigcup_{i=1}^{\infty} \closeopenbracket{a_{\closeopenbracket{},i}, b_{\closeopenbracket{},i}}
+              \cup \bigcup_{i=1}^{\infty} \closeclosebracket{a_{\closeclosebracket{},i}, b_{\closeclosebracket{},i}} \notag
+          });
+          であって，どの区間に対しても互いに素となるようにかけるので，
+          \eqn(${
+            \app{m}{A} = 
+              + \sum_{i = 1}^{\infty} b_{\openopenbracket{}, i} - a_{\openopenbracket{},i}
+              + \sum_{i = 1}^{\infty} b_{\openclosebracket{},i} - a_{\openclosebracket{},i}
+              + \sum_{i = 1}^{\infty} b_{\closeopenbracket{},i} - a_{\closeopenbracket{},i}
+              + \sum_{i = 1}^{\infty} b_{\closeclosebracket{},i} - a_{\closeclosebracket{},i} \notag
+          });
+          で与えると，この${\mathcal{A}}はalg.に，${m}は有限加法的測度になる．
+        }
+        +p{
+          これを${\app{\sigma}{\mathcal{A}}}上に拡張する．
+          ${\app{\sigma}{\mathcal{A}} \ni A}について，
+          \eqn(${
+            \app{\outer-measure{m}}{A} \coloneq \inf_{A \subset \bigcup_{i \in \mathbb{N}} I_i, \family-array{I_i} \subset \mathcal{A}} \sum_{i \in \mathbb{N}} \app{m}{I_i} \notag
+          });
+          で与えると，${\paren{\mathbb{R}, \app{\sigma}{\mathcal{A}}, \outer-measure{m}}}は測度空間になる．
+          thm\ref(`thm:hopfs-extention-theorem`);(1)より，${\outer-measure{m}}は${m}の拡張になっている．
+          また，${I_i = \closeclosebracket{i, i+1}}とおくと，${\app{m}{I_i} = i+1 - i = 1 < \infty}かつ，${\bigcup_{i \in \mathbb{Z}} I_i = \mathbb{R}}なので，
+          thm\ref(`thm:hopfs-extention-theorem`);(2)より，上の測度空間は${m}から拡張される一意的な測度空間である．
+          （この${\sigma}代数をBorel集合，測度をBorel測度という）
+        }
+        +p{
+          この測度空間の元で，${\mathbb{Q}}の測度を確認してみる．
+        }
+        +p{
+          まず，${\mathbb{Q}}が可測かを確認する．
+          ${q \in \mathbb{Q}}に対して，${\closeclosebracket{q, q}}は可測．
+          また，${\app{\sigma}{\mathcal{A}}}は${\sigma}代数なので，
+          \eqn(${
+            \bigcup_{q \in \mathbb{Q}} \closeclosebracket{q, q} = \mathbb{Q} \in \app{\sigma}{\mathcal{A}} \notag
+          });
+          なので可測．（${\mathfrak{B}_{\outer-measure{m}}}の元はかならずしも${\app{\sigma}{\mathcal{A}}}に含まれないが，${\mathcal{A}}の元はかならず含まれることに注意）
+        }
+        +p{
+          ${\mathbb{Q}}の測度は, ${\outer-measure{m}}の${\sigma}加法性から，
+          \eqn(${
+            \app{\outer-measure{m}}{\mathbb{Q}} = \app{\outer-measure{m}}{\bigcup_{q \in \mathbb{Q}} \closeclosebracket{q, q}} = \sum_{q \in \mathbb{Q}}\app{\outer-measure{m}}{ \closeclosebracket{q, q}}  = \sum_{q \in \mathbb{Q}}\app{m}{ \closeclosebracket{q, q}} = 0 \notag
+          });
+        }
+        +p{
+          ${\app{f}{x} = x}を考える．
+          \eqn(${
+            \set-intentional{x \in \mathbb{R}}{\app{f}{x} > a} = \openclosebracket{a, \infty} \in \mathcal{A} \notag
+          });
+          なので${f}は可測関数である．
+          この測度空間での${\closeclosebracket{a,b}}上の積分は，
+          \AZMathEquation.align(${
+            | \int_\closeclosebracket{a,b} f \ dm |= \lim_{n \to \infty} \sum_{i = 0}^{n-1} \int \paren{a + \frac{i}{n} \paren{b - a}} \cdot I_\closeopenbracket{a + \frac{i}{n} \paren{b - a}, a + \frac{i+1}{n} \paren{b - a}} \ dm \notag 
+            |                                     |= \lim_{n \to \infty} \sum_{i = 0}^{n-1} \paren{a + \frac{i}{n} \paren{b - a}} \cdot \frac{1}{n}\paren{b - a} \notag
+            |                                     |= \lim_{n \to \infty} \frac{1}{n}\paren{b - a}\sum_{i = 0}^{n-1} \paren{a + \frac{i}{n} \paren{b - a}} \notag
+            |                                     |= \lim_{n \to \infty} \frac{1}{n}\paren{b - a} \paren{an + \frac{1}{2} \paren{n-1} \paren{b - a}} \notag
+            |                                     |= \lim_{n \to \infty} \frac{1}{n}\paren{b - a} \paren{\frac{1}{2} \paren{n-1} \paren{b + a} + a} \notag
+            |                                     |= \lim_{n \to \infty} \paren{b - a} \paren{\frac{1}{2} \frac{n-1}{n} \paren{b + a} + \frac{a}{n}} \notag
+            |                                     |= \paren{b - a} \frac{1}{2} \paren{b + a} \notag
+            |                                     |= \frac{b^2 - a^2}{2} \notag
+          |});
+          なので，通常のリーマン積分と一致することがわかる．
+        }
+        +p{
+          この議論では${\mathcal{A}}をずいぶんと豪勢に構成したが，${\app{\sigma}{\mathcal{A}}}を作るだけなら，${\mathcal{A}}を構成するどれかを含む最小の${\sigma}代数をもってこればそれと一致する．
+          証明はつけないが，lem\ref(`lem:measurable-function-charactors`);と同様の議論によって示すことができる．
+        }
+      >
+      +subsection{確率} <
+        +p{
+          サイコロの例を考える．
+        }
+        +p{
+          集合${\mathrm{\Omega}_i}（${i = 1, 2, 3, 4, 5, 6}）に対して，${\mathrm{\Omega} = \bigcup_{i=1}^{6} \mathrm{\Omega}_i}とおき，0個以上の${\mathrm{\Omega}_i}の和の族を${\mathfrak{B}}とおく．
+          また，測度${P}を${\app{P}{\Omega_i} = \frac{1}{6}}（２つ以上の事象の和の測度も同様に定義する）とおく（${\app{P}{\mathrm{\Omega}} = 1}となるような${P}を一般に確率測度とよぶ．）と，
+          ${\paren{\Omega, \mathfrak{B}, P}}で測度空間になる．
+        }
+        +p{
+          ${X}を${\app{X}{\omega} \coloneq i \math-skip!(2pt) \text!{（if ${\omega \in \mathrm{\Omega}_i}）}}で与えると，これは可測関数となる
+          （これによってサイコロが定義される）．
+          ${X}に対する平均値${\app{E}{X}}を
+          \eqn(${
+            \app{E}{X} \coloneq \int X \ dP \notag
+          });
+          で与えると，このサイコロの平均値は，
+          \eqn(${
+            \app{E}{X} \coloneq \int X \ dP \notag = \sum_{i = 1}^{6} \app{X}{\mathrm{\Omega}_i} \app{P}{\mathrm{\Omega}_i} = \sum_{i = 1}^{6} i \cdot \frac{1}{6} = \frac{7}{2}
+          });
+          となり，我々の知る平均値が現れる．
+        }
+        +p{
+          連続分布についても同様の議論ができる．
+          ${f_X}を確率密度関数とする．
+          ${\sigma}代数としてBorel集合を，その確率測度を${\app{P}{\brace{a}} = \app{f_X}{a}}
+          を満たすように定め，その上での可測関数を${\app{X}{\brace{a}} = a}とおくと，
+          \eqn(${
+            \app{E}{X} = \int X \ dP \notag = \int \app{X}{\brace{a}} \app{P}{\brace{a}} = \int_{-\infty}^{\infty} x \app{f_X}{x} \ dx
+          });
+          となって，我々の知る期待値の計算にできる．
+        }
       >
     >
   >
