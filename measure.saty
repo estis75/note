@@ -1075,7 +1075,7 @@ document (|
             を得る．
           }
         >
-        +definition?:({概収束，測度収束})?*{
+        +definition?:({概収束，測度収束})?:(`approximate-convergence`){
           ${#measure-sp}を測度空間，
           ${f\colon-rel \mathrm{\Omega} \to \mathbb{R}^{*}}を可測関数，
           ${f_i\colon-rel \mathrm{\Omega} \to \mathbb{R}^{*}}であるような可測関数列${\family-array{f_i}_{i=1}^{\infty}}とする．
@@ -1140,7 +1140,7 @@ document (|
               | \int \liminf_{i \to \infty} \paren{M + f_i} \ dm |= \int M + \liminf_{i \to \infty} f_i \ dm \notag
               |                                                  |= M \app{m}{\mathrm{\Omega}} + \int \liminf_{i \to \infty} f_i \ dm \notag
               |                                                  |= M \app{m}{\mathrm{\Omega}} + \int_{N^\complement} \liminf_{i \to \infty} f_i \ dm \notag
-              |                                                  |= M \app{m}{\mathrm{\Omega}} + \int_{N^\complement} \liminf_{i \to \infty} f \ dm \text!{（∵概収束のdefから${N^\complement}上で関数が一致）}\notag
+              |                                                  |= M \app{m}{\mathrm{\Omega}} + \int_{N^\complement} \liminf_{i \to \infty} f \ dm \text!{（∵def\ref(`def:approximate-convergence`);(1)より，${N^\complement}上で関数が一致）}\notag
               |                                                  |= M \app{m}{\mathrm{\Omega}} + \int \liminf_{i \to \infty} f \ dm \label!(`lebesgues-bounded-convergence-theorem-3`)
               |                                                  |\leq \liminf_{i \to \infty} \int \paren{M + f_i} \ dm \text!{（∵\ref-eq(`lebesgues-bounded-convergence-theorem-1`);）}\notag 
               |                                                  |= \liminf_{i \to \infty} \paren{M \app{m}{\mathrm{M}} + \int f_i \ dm }\notag 
@@ -1163,7 +1163,7 @@ document (|
               | \int \liminf_{i \to \infty} \paren{M - f_i} \ dm |= \int M - \limsup_{i \to \infty} f_i \ dm \notag
               |                                                  |= M \app{m}{\mathrm{\Omega}} - \int \limsup_{i \to \infty} f_i \ dm \notag
               |                                                  |= M \app{m}{\mathrm{\Omega}} - \int_{N^\complement} \limsup_{i \to \infty} f_i \ dm \notag
-              |                                                  |= M \app{m}{\mathrm{\Omega}} - \int_{N^\complement} \limsup_{i \to \infty} f \ dm \text!{（∵概収束のdefから${N^\complement}上で関数が一致）}\notag
+              |                                                  |= M \app{m}{\mathrm{\Omega}} - \int_{N^\complement} \limsup_{i \to \infty} f \ dm \text!{（∵def\ref(`def:approximate-convergence`);(1)より，${N^\complement}上で関数が一致）}\notag
               |                                                  |= M \app{m}{\mathrm{\Omega}} - \int \limsup_{i \to \infty} f \ dm \label!(`lebesgues-bounded-convergence-theorem-6`)
               |                                                  |\leq \liminf_{i \to \infty} \int \paren{M - f_i} \ dm \text!{（∵\ref-eq(`lebesgues-bounded-convergence-theorem-2`);）}\notag 
               |                                                  |= \liminf_{i \to \infty} \paren{M \app{m}{\mathrm{M}} - \int f_i \ dm }\notag 
@@ -1225,7 +1225,7 @@ document (|
               | \int \liminf_{i \to \infty} \paren{g + f_i} \ dm |= \int g + \liminf_{i \to \infty} f_i \ dm \notag
               |                                                  |= \int g \ dm + \int \liminf_{i \to \infty} f_i \ dm \notag
               |                                                  |= \int g \ dm + \int_{N^\complement} \liminf_{i \to \infty} f_i \ dm \notag
-              |                                                  |= \int g \ dm + \int_{N^\complement} \liminf_{i \to \infty} f \ dm \text!{（∵概収束のdefから${N^\complement}上で関数が一致）}\notag
+              |                                                  |= \int g \ dm + \int_{N^\complement} \liminf_{i \to \infty} f \ dm \text!{（∵def\ref(`def:approximate-convergence`);(1)より，${N^\complement}上で関数が一致）}\notag
               |                                                  |= \int g \ dm + \int \liminf_{i \to \infty} f \ dm \label!(`dominated-convergence-theorem-3`)
               |                                                  |\leq \liminf_{i \to \infty} \int \paren{g + f_i} \ dm \text!{（∵\ref-eq(`dominated-convergence-theorem-1`);）}\notag 
               |                                                  |= \liminf_{i \to \infty} \paren{\int g \ dm + \int f_i \ dm }\notag 
@@ -1240,7 +1240,7 @@ document (|
               | \int \liminf_{i \to \infty} \paren{g - f_i} \ dm |= \int g - \limsup_{i \to \infty} f_i \ dm \notag
               |                                                  |= \int g \ dm - \int \limsup_{i \to \infty} f_i \ dm \notag
               |                                                  |= \int g \ dm - \int_{N^\complement} \limsup_{i \to \infty} f_i \ dm \notag
-              |                                                  |= \int g \ dm - \int_{N^\complement} \limsup_{i \to \infty} f \ dm \text!{（∵概収束のdefから${N^\complement}上で関数が一致）}\notag
+              |                                                  |= \int g \ dm - \int_{N^\complement} \limsup_{i \to \infty} f \ dm \text!{（∵def\ref(`def:approximate-convergence`);(1)より，${N^\complement}上で関数が一致）}\notag
               |                                                  |= \int g \ dm - \int \limsup_{i \to \infty} f \ dm \label!(`dominated-convergence-theorem-6`)
               |                                                  |\leq \liminf_{i \to \infty} \int \paren{g - f_i} \ dm \text!{（∵\ref-eq(`dominated-convergence-theorem-2`);）}\notag 
               |                                                  |= \liminf_{i \to \infty} \paren{\int g \ dm - \int f_i \ dm }\notag 
